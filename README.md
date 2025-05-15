@@ -1,9 +1,9 @@
 # Ceph Documentation Hub
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![GitHub Contributors](https://img.shields.io/github/contributors/YOUR_USERNAME/ceph-documentation)](https://github.com/YOUR_USERNAME/ceph-documentation/graphs/contributors)
-[![GitHub Issues](https://img.shields.io/github/issues/YOUR_USERNAME/ceph-documentation)](https://github.com/YOUR_USERNAME/ceph-documentation/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/pulls/YOUR_USERNAME/ceph-documentation)](https://github.com/YOUR_USERNAME/ceph-documentation/pulls)
+[![GitHub Contributors](https://img.shields.io/github/contributors/SumonPaul18/ceph-documentation)](https://github.com/SumonPaul18/ceph-storage/graphs/contributors)
+[![GitHub Issues](https://img.shields.io/github/issues/SumonPaul18/ceph-documentation)](https://github.com/SumonPaul18/ceph-storage/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/pulls/SumonPaul18/ceph-documentation)](https://github.com/SumonPaul18/ceph-storage/pulls)
 
 
 # Learn Ceph - From Basics to Advanced
