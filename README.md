@@ -13,7 +13,7 @@
 - [✨ Features](#-features)
 - [🧱 Ceph Architecture](#-ceph-architecture)
 - [⚙️ Installation](#-installation-methods)
-- [🛠️ Configuration](#-configuration-&-management)
+- [🛠️ Configuration](#-configuration--management)
 - [💻 Common Ceph Commands](#-common-ceph-commands)
 - [📊 Monitoring](#-monitoring)
 - [📦 Use Cases](#-use-cases)
