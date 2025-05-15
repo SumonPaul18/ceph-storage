@@ -176,8 +176,6 @@ ceph osd pool set mypool crush_rule rule_replicated
 * [Ceph Pools](https://docs.ceph.com/en/latest/rados/operations/pools/)
 * [Red Hat Storage Guide](https://access.redhat.com/documentation/en-us/red_hat_ceph_storage/)
 
-````
-
 ---
 
 
