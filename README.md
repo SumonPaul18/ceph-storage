@@ -11,7 +11,7 @@
 
 - [📖 What is Ceph?](#-what-is-ceph)
 - [✨ Features](#-features)
-- [🧱 Ceph Architecture](#-Ceph-Architecture-Simplified)
+- [🧱 Ceph Architecture](#-ceph-architecture)
 - [⚙️ Installation](#-installation)
 - [🛠️ Configuration](#-configuration)
 - [💻 Common Ceph Commands](#-common-ceph-commands)
@@ -48,7 +48,7 @@ It is fault-tolerant, self-healing, self-managing, and ideal for modern cloud-na
 
 ---
 
-## 🧱 Ceph Architecture - Simplified
+## 🧱 Ceph Architecture
 
 Ceph’s architecture consists of the following components:
 
