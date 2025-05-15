@@ -1,6 +1,3 @@
-### 📄 `/installation/bare-metal.md`
-
-```markdown
 # 🖥️ Ceph Installation on Bare-Metal (Ubuntu)
 
 This guide will walk you through the step-by-step process of installing and configuring a Ceph cluster on **bare-metal Ubuntu servers**. This setup is suitable for learning, lab environments, and small-scale production.
