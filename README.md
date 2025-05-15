@@ -1,10 +1,9 @@
-# Ceph Documentation Hub
+# 🚀 Dive into Ceph: Your Comprehensive Learning Hub! 🚀
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub Contributors](https://img.shields.io/github/contributors/SumonPaul18/ceph-storage)](https://github.com/SumonPaul18/ceph-storage/graphs/contributors)
 [![GitHub Issues](https://img.shields.io/github/issues/SumonPaul18/ceph-storage)](https://github.com/SumonPaul18/ceph-storage/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/pulls/SumonPaul18/ceph-storage)](https://github.com/SumonPaul18/ceph-storage/pulls)
-
 
 # Learn Ceph - From Basics to Advanced
 
