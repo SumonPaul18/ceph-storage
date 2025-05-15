@@ -20,7 +20,7 @@
 - [📘 Tutorials](#-tutorials)
 - [📌 FAQs](#-faqs)
 - [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
+
 
 ---
 
