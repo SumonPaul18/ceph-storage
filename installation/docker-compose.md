@@ -209,8 +209,6 @@ sudo rm -rf ./data/*
 * [Ceph Documentation](https://docs.ceph.com/en/latest/)
 * [Docker Hub - ceph/ceph](https://hub.docker.com/r/ceph/ceph)
 
-```
-
 ---
 
 
