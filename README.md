@@ -26,51 +26,69 @@
 
 ## 📖 What is Ceph?
 
-**Ceph** is a free and open-source software storage platform that implements object storage on a single distributed computer cluster, and provides interfaces for object-, block- and file-level storage.
+**Ceph** is a powerful, scalable, and reliable distributed storage system designed to provide:
+- **Block storage** (RBD)
+- **Object storage** (RGW/S3 compatible)
+- **File system** (CephFS)
+
+It is fault-tolerant, self-healing, self-managing, and ideal for modern cloud-native infrastructure.
 
 ---
 
 ## ✨ Features
 
-- 🧠 Self-healing & Self-managing
-- 🚀 High Scalability (from GBs to PBs)
-- 💡 No single point of failure
-- 🔒 Strong consistency and reliability
-- ⚙️ Unified storage: block, object, and file
-- 🌐 Open source and vendor-neutral
+| Feature                  | Description                                                                 |
+|--------------------------|-----------------------------------------------------------------------------|
+| 🔄 Scalability            | Grows from GBs to multi-PB seamlessly                                      |
+| 🔧 Unified Storage        | Block, Object, and File storage in one platform                            |
+| 🛠 Self-healing            | Automatically recovers from hardware or disk failures                      |
+| 🧠 Intelligent Clustering | Uses CRUSH algorithm for data placement without bottlenecks                |
+| 🔐 High Availability      | No single point of failure, supports replication and erasure coding        |
+| 💻 Open Source            | Backed by a large community and enterprise-ready (Red Hat Ceph, etc.)      |
 
 ---
 
-## 🧱 Ceph Architecture
+## 🧱 Ceph Architecture - Simplified
 
-Ceph has several core components:
-- **Monitors (MON):** Maintain cluster maps
-- **Managers (MGR):** Monitoring & interfaces
-- **Object Storage Daemons (OSD):** Store actual data
-- **Metadata Servers (MDS):** File system metadata (only for CephFS)
-- **Clients:** Access Ceph through RBD, RGW, or CephFS
+Ceph’s architecture consists of the following components:
 
-→ [Read more](./architecture/overview.md)
+| Component | Description |
+|----------|-------------|
+| **MON (Monitor)** | Maintains cluster map and health |
+| **MGR (Manager)** | Provides dashboard and monitoring |
+| **OSD (Object Storage Daemon)** | Stores actual data on disk |
+| **MDS (Metadata Server)** | Manages metadata for CephFS |
+| **Client Interfaces** | RBD, RGW (S3), CephFS for applications |
 
----
-
-## ⚙️ Installation
-
-Choose your preferred method:
-
-1. 🐳 [Docker Compose Setup](./installation/docker-compose.md)
-2. 💻 [Bare Metal Installation](./installation/bare-metal.md)
-3. 🔧 [Cephadm Deployment](./installation/cephadm.md)
-
-> Make sure your system meets the prerequisites like kernel version, disk size, memory, and network setup.
+📖 [Detailed Architecture Guide →](./architecture/overview.md)
 
 ---
 
-## 🛠️ Configuration
+## 🚀 Installation Methods
 
-- [ceph.conf Explained](./configuration/ceph.conf.md)
-- [CRUSH Map & Topology](./configuration/crush-map.md)
-- [Creating & Managing Pools](./configuration/pools.md)
+You can deploy Ceph in multiple ways. We provide detailed, step-by-step guides for each:
+
+1. 🐳 [Install Ceph using Docker Compose](./installation/docker-compose.md) – Ideal for testing
+2. 🧰 [Install on Bare Metal (Manual Setup)](./installation/bare-metal.md) – Full control
+3. 🔧 [Deploy using Cephadm (Recommended)](./installation/cephadm.md) – Production-ready and simple
+
+📌 Minimum Requirements:
+- Linux OS (Ubuntu/CentOS)
+- 2+ CPUs, 4GB+ RAM per node
+- SSD/HDD for OSDs
+- Proper network configuration
+
+---
+
+## ⚙️ Configuration & Management
+
+Ceph is highly configurable. This section covers essential configurations:
+
+- [📄 Understanding `ceph.conf`](./configuration/ceph.conf.md)
+- [🏗 Pools & Replication](./configuration/pools.md)
+- [🧠 CRUSH Map and Data Placement](./configuration/crush-map.md)
+
+> Each topic includes examples, diagrams, and best practices.
 
 ---
 
