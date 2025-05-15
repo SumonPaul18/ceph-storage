@@ -12,7 +12,7 @@
 - [📖 What is Ceph?](#-what-is-ceph)
 - [✨ Features](#-features)
 - [🧱 Ceph Architecture](#-ceph-architecture)
-- [⚙️ Installation](#-installation)
+- [⚙️ Installation](#-installation-methods)
 - [🛠️ Configuration](#-configuration)
 - [💻 Common Ceph Commands](#-common-ceph-commands)
 - [📊 Monitoring](#-monitoring)
