@@ -225,24 +225,6 @@ Thanks to all the contributors who make this project better every day. 💙
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License**.
-
-```
-MIT License
-
-Copyright (c) 2025 Suman Pal
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction...
-```
-
-📃 [View Full License](./LICENSE)
-
----
-
-> Made with ❤️ by [Suman Pal](https://github.com/sumanpalx) | Ceph ❤️ Open Source
+> Made with ❤️ by [Suman Pal](https://github.com/SumonPaul18) | Ceph ❤️ Open Source
 
 ---
