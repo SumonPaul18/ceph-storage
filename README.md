@@ -1,6 +1,6 @@
 # 🚀 Dive into Ceph: Your Comprehensive Learning Hub!
 
-[Ceph-Storage](https://github.com/SumonPaul18/ceph-storage/blob/main/src/images/ceph-wide.png)
+![Ceph-Storage](./src/images/ceph-wide.png)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub Contributors](https://img.shields.io/github/contributors/SumonPaul18/ceph-storage)](https://github.com/SumonPaul18/ceph-storage/graphs/contributors)
