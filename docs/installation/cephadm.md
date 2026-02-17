@@ -14,7 +14,6 @@ This guide provides a **step-by-step walkthrough** to deploy a Ceph cluster usin
 - [🧱 Deploy OSDs](#-deploy-osds)
 - [📊 Enable Dashboard](#-enable-dashboard)
 - [🔐 Authentication](#-authentication)
-- [📂 Directory Layout](#-directory-layout)
 - [🧰 Troubleshooting](#-troubleshooting)
 - [🔗 References](#-references)
 
@@ -183,24 +182,6 @@ To create a user:
 
 ```bash
 ceph auth get-or-create client.myuser mon 'allow r' osd 'allow rw pool=my-pool'
-```
-
----
-
-## 📂 Directory Layout
-
-Ceph stores configuration and service info in:
-
-```bash
-/etc/ceph/
-└── ceph.conf
-└── ceph.client.admin.keyring
-
-/var/lib/ceph/
-└── mon/
-└── mgr/
-└── osd/
-└── crash/
 ```
 
 ---
