@@ -100,11 +100,19 @@ Ceph is highly configurable. This section covers essential configurations:
 - [Troubleshooting Tips](./commands/troubleshooting.md)
 
 Examples:
-```bash
+
+```
 ceph status
+```
+```
 ceph osd tree
+```
+```
 ceph df
+```
+```
 ceph health detail
+```
 
 ---
 
