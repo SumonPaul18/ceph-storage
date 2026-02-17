@@ -30,8 +30,9 @@ Before you begin, make sure the following are installed:
 
 Install Docker Compose (if not already):
 
-```bash
+```
 sudo apt install docker-compose
+```
 
 ---
 
@@ -47,10 +48,19 @@ ceph-docker/
 │   ├── osd/
 │   └── mgr/
 ```
+Create Now The  Directory Structure following above.
+
+```
+mkdir ceph-docker
+cd ceph-docker
+```
 
 ---
 
 ## 🧾 Configuration Files
+```
+nano ceph.conf
+```
 
 ### ceph.conf
 
@@ -74,6 +84,10 @@ Replace `192.168.1.10` and network range with your actual host IP and subnet.
 ---
 
 ## 📦 Docker Compose File
+
+```
+nano docker-compose.yml
+```
 
 ### docker-compose.yml
 
