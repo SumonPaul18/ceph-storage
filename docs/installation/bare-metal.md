@@ -173,18 +173,6 @@ You’ll see keys for MON, MGR, OSD, etc.
 
 ---
 
-## 📂 Directory Structure
-
-```bash
-~/ceph-cluster/
-├── ceph.conf         # Main config
-├── ceph.client.admin.keyring
-├── mon.keyring
-└── log/              # Logs
-```
-
----
-
 ## 🛑 Stopping & Restarting
 
 To restart Ceph services:
