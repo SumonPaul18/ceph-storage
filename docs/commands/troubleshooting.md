@@ -126,6 +126,14 @@ ceph tell osd.* bench
 
 ---
 
+## 📘 Pro Tips:
+
+Always backup ceph.conf before config changes.
+
+Set alerts for health warnings using Prometheus/Grafana.
+
+---
+
 ## 📚 Resources
 
 * [Official Ceph Troubleshooting Guide](https://docs.ceph.com/en/latest/rados/troubleshooting/)
