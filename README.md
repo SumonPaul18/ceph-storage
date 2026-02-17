@@ -1,4 +1,6 @@
-# 🚀 Dive into Ceph: Your Comprehensive Learning Hub!
+# 🚀 Learn Ceph - The Ultimate Guide to Ceph Storage System
+
+Welcome to **Learn Ceph**, a fully open-source, beginner-to-advanced guide to mastering the **Ceph Distributed Storage System**. Whether you're a system administrator, DevOps engineer, or a storage enthusiast — this repository will help you understand, install, configure, monitor, and scale Ceph like a pro. 🚀
 
 ![Ceph-Storage](./src/images/ceph-wide.png)
 
