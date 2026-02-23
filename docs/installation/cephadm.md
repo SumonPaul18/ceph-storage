@@ -76,7 +76,7 @@ sudo apt install -y cephadm
 Check version:
 
 ```bash
-cephadm --version
+cephadm version
 ```
 
 ---
