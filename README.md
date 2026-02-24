@@ -149,6 +149,13 @@ curl http://<ceph-mgr>:9283/metrics
 
 Ceph is highly flexible and supports multiple real-world use cases across various industries:
 
+| Use Case          | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| 📦 Block Storage  | Persistent volumes using RBD in Kubernetes/OpenStack |
+| 🌐 Object Storage | S3-compatible storage with RADOS Gateway (RGW)       |
+| 📁 File Storage   | Distributed file system with CephFS                  |
+
+
 ### 🖼 Object Storage (Ceph RGW)
 
 * S3 & Swift-compatible API
@@ -173,7 +180,7 @@ Ceph is highly flexible and supports multiple real-world use cases across variou
 
 ---
 
-## 📘 Tutorials
+## 📘🧪 Tutorials & Hands-On Labs
 
 Want hands-on experience? Check out these guides:
 * 🏗️ [Ceph Architecture Overview](./docs/architecture/)
@@ -184,31 +191,42 @@ Want hands-on experience? Check out these guides:
 
 🎓 More coming soon: CephFS snapshots, Multi-site RGW, Ceph on Kubernetes, etc.
 
+**Each tutorial includes:**
+- Prerequisites
+- Step-by-step instructions
+- Validation steps
+
 ---
 
-## 📌 FAQs
+## ❓ Frequently Asked Questions (FAQs)
 
 ### ❓ What is the minimum number of nodes for a production Ceph cluster?
 
 At least **3 MONs** and **3 OSDs** are recommended for quorum and redundancy.
 
----
-
 ### ❓ Is Ceph suitable for small-scale or home lab setups?
 
 ✅ Yes. With tools like cephadm and containers, even a single-node deployment is possible.
 
----
+### ❓ Is Ceph better than GlusterFS?
+
+Depends on use case. Ceph is more feature-rich and scalable
 
 ### ❓ How does Ceph handle node failure?
 
 Ceph uses data replication (or erasure coding) and automatic rebalancing to maintain availability even after hardware failure.
 
----
-
 ### ❓ Can I use Ceph with Kubernetes?
 
 Absolutely. Ceph integrates well via **Rook**, **CSI drivers**, and **RBD/NFS** backends for dynamic provisioning.
+
+### ❓ How is data replicated?	
+
+Ceph uses replication or erasure coding based on pool configuration
+
+### ❓ Is Ceph suitable for small-scale setups?	
+
+Yes, but 3+ nodes are recommended even for dev/testing
 
 ---
 
@@ -223,19 +241,17 @@ We welcome contributions from the community! 🚀
 3. Make your changes
 4. Submit a Pull Request
 
-### 📃 Guidelines
+---
 
-* Follow markdown consistency and formatting
-* Add relevant diagrams if helpful
-* Keep explanations simple and clear
-* Reference official documentation when possible
+## 🔗 Source & Resources
 
-### 🙌 Contributors
-
-Thanks to all the contributors who make this project better every day. 💙
+- 🔗 [Ceph Official Docs](https://docs.ceph.com/en/latest/)
+- 🔗 [Red Hat Ceph Storage](https://docs.redhat.com/en/documentation/red_hat_ceph_storage/9)
 
 ---
 
 > Made with ❤️ by [Suman Pal](https://github.com/SumonPaul18) | Ceph ❤️ Open Source
+
+### 💫 If you find this project useful, please consider giving it a ⭐️ star and sharing with others!
 
 ---
