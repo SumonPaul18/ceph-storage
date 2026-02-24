@@ -176,12 +176,11 @@ Ceph is highly flexible and supports multiple real-world use cases across variou
 ## 📘 Tutorials
 
 Want hands-on experience? Check out these guides:
-
-* 📦 [Deploy Ceph with Docker Compose](./docs/installation/)
-* 🖥️ [Install on Bare Metal](./docs/installation/bare-metal.md)
-* 🤖 [Bootstrap with cephadm](./docs/installation/cephadm.md)
-* ⚙️ [Tune ceph.conf & CRUSH Map](./docs/configuration-management/ceph.conf.md)
-* 📡 [Setup Monitoring & Alerts](./docs/monitoring-and-alerting/overview.md)
+* 🏗️ [Ceph Architecture Overview](./docs/architecture/)
+* ⚙️ [Ceph Installation & Deployment Guide](./docs/installation/)
+* 🖥️ [Ceph Configuration in Depth](./docs/configuration/)
+* 🤖 [Ceph (CLI) & Troubleshooting Reference](./docs/commands/)
+* 📡 [Ceph Monitoring & Alerting Guide](./docs/monitoring-and-alerting/)
 
 🎓 More coming soon: CephFS snapshots, Multi-site RGW, Ceph on Kubernetes, etc.
 
