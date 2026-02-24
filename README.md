@@ -64,7 +64,7 @@ Ceph’s architecture consists of the following components:
 | **MDS (Metadata Server)** | Manages metadata for CephFS |
 | **Client Interfaces** | RBD, RGW (S3), CephFS for applications |
 
-📖 [Detailed Architecture Guide →](./architecture/overview.md)
+📖 [Detailed Architecture Guide →](./docs/architecture/README.md)
 
 ---
 
@@ -72,9 +72,9 @@ Ceph’s architecture consists of the following components:
 
 You can deploy Ceph in multiple ways. We provide detailed, step-by-step guides for each:
 
-1. 🐳 [Install Ceph using Docker Compose](./installation/docker-compose.md) – Ideal for testing
-2. 🧰 [Install on Bare Metal (Manual Setup)](./installation/bare-metal.md) – Full control
-3. 🔧 [Deploy using Cephadm (Recommended)](./installation/cephadm.md) – Production-ready and simple
+1. 🔧 [Deploy using Cephadm (Recommended)](./docs/installation/cephadm/cephadm.md) – Production-ready and simple
+2. 🧰 [Install on Bare Metal (Manual Setup)](./docs/installation/bare-metal.md) – Full control
+3. 🐳 [Install Ceph using Docker Compose](./docs/installation/docker-compose.md) – Ideal for testing
 
 📌 Minimum Requirements:
 - Linux OS (Ubuntu/CentOS)
@@ -88,9 +88,9 @@ You can deploy Ceph in multiple ways. We provide detailed, step-by-step guides f
 
 Ceph is highly configurable. This section covers essential configurations:
 
-- [📄 Understanding `ceph.conf`](./configuration/ceph.conf.md)
-- [🏗 Pools & Replication](./configuration/pools.md)
-- [🧠 CRUSH Map and Data Placement](./configuration/crush-map.md)
+- [📄 Understanding `ceph.conf`](./docs/configuration/README.md)
+- [🏗 Pools & Replication](./docs/configuration/pools.md)
+- [🧠 CRUSH Map and Data Placement](./docs/configuration/crush-map.md)
 
 > Each topic includes examples, diagrams, and best practices.
 
@@ -98,8 +98,8 @@ Ceph is highly configurable. This section covers essential configurations:
 
 ## 💻 Common Ceph Commands
 
-- [Ceph CLI Basics](./commands/ceph-cli.md)
-- [Troubleshooting Tips](./commands/troubleshooting.md)
+- [Ceph CLI Basics](./docs/commands/README.md)
+- [Troubleshooting Tips](./docs/commands/troubleshooting.md)
 
 Examples:
 
@@ -141,7 +141,7 @@ ceph mgr module enable prometheus
 curl http://<ceph-mgr>:9283/metrics
 ````
 
-📘 For detailed setup: [`/monitoring-and-alerting/overview.md`](./monitoring-and-alerting/overview.md)
+📘 For detailed setup: [`/monitoring-and-alerting/overview.md`](./docs/monitoring-and-alerting/README.md)
 
 ---
 
@@ -177,11 +177,11 @@ Ceph is highly flexible and supports multiple real-world use cases across variou
 
 Want hands-on experience? Check out these guides:
 
-* 📦 [Deploy Ceph with Docker Compose](./installation/docker-compose.md)
-* 🖥️ [Install on Bare Metal](./installation/bare-metal.md)
-* 🤖 [Bootstrap with cephadm](./installation/cephadm.md)
-* ⚙️ [Tune ceph.conf & CRUSH Map](./configuration-management/ceph.conf.md)
-* 📡 [Setup Monitoring & Alerts](./monitoring-and-alerting/overview.md)
+* 📦 [Deploy Ceph with Docker Compose](./docs/installation/)
+* 🖥️ [Install on Bare Metal](./docs/installation/bare-metal.md)
+* 🤖 [Bootstrap with cephadm](./docs/installation/cephadm.md)
+* ⚙️ [Tune ceph.conf & CRUSH Map](./docs/configuration-management/ceph.conf.md)
+* 📡 [Setup Monitoring & Alerts](./docs/monitoring-and-alerting/overview.md)
 
 🎓 More coming soon: CephFS snapshots, Multi-site RGW, Ceph on Kubernetes, etc.
 
