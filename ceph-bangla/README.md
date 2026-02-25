@@ -1,10 +1,14 @@
-## 🧠 **Ceph Storage কী?**
+# 📘 Ceph শেখার পূর্ণ রোডম্যাপ (Step-by-Step with Practical Examples)
+
+## 🔹 পর্ব ১: Ceph পরিচিতি ও আর্কিটেকচার
+
+### 🧠 **Ceph Storage কী?**
 
 **Ceph** হল একটি **distributed storage system**, যা object, block এবং file storage একসাথে সাপোর্ট করে। এটা **high performance**, **fault-tolerant**, এবং **scalable**। Ceph মূলত cloud এবং enterprise-গ্রেড storage solution হিসেবে ব্যবহৃত হয়।
 
 ---
 
-## 🏗️ **Ceph Storage-এর আর্কিটেকচার (Architecture)**
+### 🏗️ **Ceph Storage-এর আর্কিটেকচার (Architecture)**
 
 Ceph মূলত নিচের component-গুলো নিয়ে কাজ করে:
 
@@ -25,7 +29,7 @@ Ceph মূলত নিচের component-গুলো নিয়ে কা�
 
 ---
 
-## 📦 **Ceph Storage টাইপস**
+### 📦 **Ceph Storage টাইপস**
 
 1. **Object Storage (RADOS Gateway - RGW)**
    → Amazon S3/Swift compatible API দিয়ে কাজ করে।
@@ -38,9 +42,9 @@ Ceph মূলত নিচের component-গুলো নিয়ে কা�
 
 ---
 
-## 🧱 **Ceph Cluster তৈরি করার ধাপসমূহ (Step-by-Step)**
+### 🧱 **Ceph Cluster তৈরি করার ধাপসমূহ (Step-by-Step)**
 
-### 🧰 ধাপ ১: সিস্টেম প্রস্তুতি
+#### 🧰 ধাপ ১: সিস্টেম প্রস্তুতি
 
 * Ubuntu/RHEL server প্রস্তুত করুন (minimum 3 nodes)
 * `ntp` / `chronyd` sync করুন
@@ -56,7 +60,7 @@ Ceph মূলত নিচের component-গুলো নিয়ে কা�
 sudo apt update
 sudo apt install ceph-deploy ceph-common
 ```
-
+#### 📦 Or use Cephadm (for production)
 #### 📦 Or use Ceph-Ansible (for production)
 
 ### 🧰 ধাপ ৩: Cluster Bootstrapping (ceph-deploy দিয়ে)
@@ -83,7 +87,7 @@ ceph -s
 
 ---
 
-## 📊 **Ceph Monitoring & Management**
+### 📊 **Ceph Monitoring & Management**
 
 * **Ceph Dashboard**: Web UI
 * **Prometheus + Grafana** integration
@@ -91,14 +95,14 @@ ceph -s
 
 ---
 
-## ⚙️ **Ceph Storage Pools & CRUSH Map**
+### ⚙️ **Ceph Storage Pools & CRUSH Map**
 
 * **Storage Pool**: Data logical group
 * **CRUSH Map**: Intelligent data placement algorithm যা redundancy ও performance নিশ্চিত করে
 
 ---
 
-## 🔐 **Ceph এর Data Redundancy & Recovery**
+### 🔐 **Ceph এর Data Redundancy & Recovery**
 
 * **Replication**: Same data multiple OSD-তে থাকে
 * **Erasure Coding**: More efficient redundancy technique
@@ -106,7 +110,7 @@ ceph -s
 
 ---
 
-## 🎯 **Ceph এর ব্যবহার ক্ষেত্র**
+### 🎯 **Ceph এর ব্যবহার ক্ষেত্র**
 
 | Use Case           | Explanation                |
 | ------------------ | -------------------------- |
@@ -119,15 +123,9 @@ ceph -s
 
 ---
 
-## 📘 Ceph শেখার পূর্ণ রোডম্যাপ (Step-by-Step with Practical Examples)
-
-### 🔹 পর্ব ১: Ceph পরিচিতি ও আর্কিটেকচার (Already Done)
-
----
-
 ## ✅ পর্ব ২: Ceph Cluster তৈরি করা (Installation + Configuration + Initial Setup)
 
-এখানে আমরা শেখাবো:
+এখানে আমরা দেখবো:
 
 * ৩টি VM/Server দিয়ে Cluster বানানো
 * Ceph-deploy দিয়ে Ceph ইনস্টল করা
