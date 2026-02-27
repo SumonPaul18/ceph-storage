@@ -152,7 +152,7 @@ which cephadm
 ```
 cephadm version
 ```
-> Note: This might show 'UNKNOWN' on some Ubuntu packages, but check with:
+> **Note:** Sometimes this might show 'UNKNOWN' on some Ubuntu packages, but check with:
 ```
 dpkg -l | grep cephadm
 ```
@@ -167,46 +167,56 @@ dpkg -l | grep cephadm
 
 1. Go to **[https://download.ceph.com/](https://download.ceph.com/)**.
 
-2. Look for the folder named `rpm-<release-name>` (e.g., `rpm-reef`, `rpm-squid`, `rpm-quincy`).
+2. Look for your selected  `ceph version` (e.g., `rpm-reef`, `rpm-squid`, `rpm-quincy`).
    * `reef` = Ceph v18 (LTS)
    * `squid` = Ceph v19 (Latest)
    * `quincy` = Ceph v17 (Older LTS)
 
-3. Navigate to: `noarch` -> Click on `cephadm`.
+3. Navigate to the: `selected version` -> Click on `el9` After then -> Click on `noarch` and lookout `cephadm`.
 
-4. Copy the link address (Right-click > Copy Link Address). It will look like: `https://download.ceph.com/rpm-reef/el9/noarch/cephadm`.
+4. Copy the link address (Right-click > Copy Link Address). It will look like: `https://download.ceph.com/rpm-squid/el9/noarch/cephadm`.
 
 5. Replace the URL in the command below with your copied link.
 
-```bash
 # 1. Define your desired release (e.g., reef, squid, quincy)
-CEPH_RELEASE=reef
 
+```bash
+CEPH_RELEASE=squid
+```
 # 2. Download the specific cephadm binary
 # Replace the URL below if you found a different link from the website
-curl --silent --remote-name --location https://download.ceph.com/rpm-${CEPH_RELEASE}/el9/noarch/cephadm
-
-# 3. Make it executable
-chmod +x cephadm
-
-# 4. Move to system path
-sudo mv cephadm /usr/sbin/cephadm
-
-# 5. Verify the specific version
-cephadm version
-# Expected Output: cephadm version 18.2.x ... reef (stable)
 ```
+curl --silent --remote-name --location https://download.ceph.com/rpm-${CEPH_RELEASE}/el9/noarch/cephadm
+```
+# 3. Make it executable
+```
+chmod +x cephadm
+```
+# 4. Move to system path
+```
+sudo mv cephadm /usr/sbin/cephadm
+```
+# 5. Verify the specific version
+```
+cephadm version
+```
+> **Expected Output:** cephadm version 19.2.x ... squid (stable)
+
 ---
 
 ## 🚀 Step 3: Bootstrap the New Ceph Cluster
 
 ### Initialize the first monitor and manager daemons
+
 #### Bootstrap a new Ceph cluster with Docker engine and single-node optimizations
+
 ```bash
 sudo cephadm bootstrap \
   --mon-ip 192.168.68.180 \
   --single-host-defaults \
-  --container-engine docker
+  --container-engine docker  \
+  --initial-dashboard-user admin \
+  --initial-dashboard-password admin123
 ```
 
 #### 🔍 Explanation of Bootstrap Flags:
@@ -215,6 +225,9 @@ sudo cephadm bootstrap \
 | `--mon-ip 192.168.68.180` | Specifies the IP address for the initial Monitor daemon |
 | `--single-host-defaults` | Optimizes CRUSH rules for single-node deployment (reduces replica requirements) |
 | `--container-engine docker` | Explicitly uses Docker instead of default Podman |
+| `--initial-dashboard-user` `admin` | Setup Your User Name |
+| `--initial-dashboard-password` `admin123` | Setup the User Password |
+
 
 #### ✅ What this command does automatically:
 1. Pulls required Ceph container images (`ceph/ceph:v19` or latest stable)
