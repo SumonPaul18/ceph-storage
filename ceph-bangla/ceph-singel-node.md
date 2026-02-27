@@ -108,9 +108,10 @@ dpkg -l | grep cephadm
    * `squid` = Ceph v19 (লেটেস্ট)
    * `quincy` = Ceph v17 (পুরনো LTS)
 
-৩. এরপর ক্রমান্বয়ে `নির্দিষ্ট version` ফোল্ডারে যান এবং `el9` ফাইলটিতে ক্লিক করুন তারপরে 'noarch' ক্লিক করুন এবং 'cephadm' ফাইলটির লিংক কপি করুন।
+৩. এরপর ক্রমান্বয়ে `নির্দিষ্ট version` ফোল্ডারে যান এবং `el9` ফাইলটিতে ক্লিক করুন তারপরে `noarch` ক্লিক করুন এবং `cephadm` ফাইলটির লিংক কপি করুন।
 
-৪. লিংকটি কপি করতে ('cephadm' ফাইলটির উপরে > Right-click > Copy Link Address)। লিংকটি এমন দেখাবে: `https://download.ceph.com/rpm-squid/el9/noarch/cephadm`।
+৪. লিংকটি কপি করতে (`cephadm` ফাইলটির উপরে > Right-click > Copy Link Address)। লিংকটি এমন দেখাবে:
+- `https://download.ceph.com/rpm-squid/el9/noarch/cephadm`
 
 ৫. নিচের কমান্ডের URL টি আপনার কপি করা লিংক দিয়ে পরিবর্তন করুন অথবা `CEPH_RELEASE` ভেরিয়েবল ঠিক রেখে কমান্ডটি রান করুন।
 
