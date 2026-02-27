@@ -174,29 +174,30 @@ dpkg -l | grep cephadm
 
 3. Navigate to the: `selected version` -> Click on `el9` After then -> Click on `noarch` and lookout `cephadm`.
 
-4. Copy the link address (Right-click > Copy Link Address). It will look like: `https://download.ceph.com/rpm-squid/el9/noarch/cephadm`.
+4. Copy the link address (Right-click > Copy Link Address). It will look like:
+- `https://download.ceph.com/rpm-squid/el9/noarch/cephadm`.
 
 5. Replace the URL in the command below with your copied link.
 
-# 1. Define your desired release (e.g., reef, squid, quincy)
+#### 1. Define your desired release (e.g., reef, squid, quincy)
 
 ```bash
 CEPH_RELEASE=squid
 ```
-# 2. Download the specific cephadm binary
-# Replace the URL below if you found a different link from the website
+#### 2. Download the specific cephadm binary
+#### Replace the URL below if you found a different link from the website
 ```
 curl --silent --remote-name --location https://download.ceph.com/rpm-${CEPH_RELEASE}/el9/noarch/cephadm
 ```
-# 3. Make it executable
+#### 3. Make it executable
 ```
 chmod +x cephadm
 ```
-# 4. Move to system path
+#### 4. Move to system path
 ```
 sudo mv cephadm /usr/sbin/cephadm
 ```
-# 5. Verify the specific version
+#### 5. Verify the specific version
 ```
 cephadm version
 ```
