@@ -3,7 +3,7 @@
 
 ---
 
-## 📋 Your Environment Summary
+## 📋 My Environment Summary
 
 | Item | Value |
 |------|-------|
@@ -37,9 +37,33 @@ Before starting, ensure the following:
 ```
 sudo apt update && sudo apt upgrade -y
 ```
+### Configure hostname and FQDN
+#### Set the system hostname
+```bash
+sudo hostnamectl set-hostname ceph1
+```
+#### Add FQDN mapping to /etc/hosts for local resolution
+```
+echo "192.168.68.180 ceph1.paulco.xyz ceph1" | sudo tee -a /etc/hosts
+```
+#### Verify hostname resolution
+```
+hostnamectl status
+ping -c 2 ceph1.paulco.xyz
+```
+
 #### Install required packages: SSH, LVM2, time sync, and utilities
 ```
 sudo apt install -y ssh openssh-server lvm2 chrony curl jq apt-transport-https ca-certificates gnupg
+```
+### Configure time synchronization with chrony
+#### Enable and start chrony service for accurate time sync
+```bash
+sudo systemctl enable --now chrony
+```
+#### Verify time sources are synchronized
+```
+chronyc sources -v
 ```
 
 ### Enable and start SSH service (mandatory for cephadm)
@@ -83,31 +107,6 @@ sudo systemctl enable --now docker
 docker --version
 ```
 
-### Configure time synchronization with chrony
-#### Enable and start chrony service for accurate time sync
-```bash
-sudo systemctl enable --now chrony
-```
-#### Verify time sources are synchronized
-```
-chronyc sources -v
-```
-
-### Configure hostname and FQDN
-#### Set the system hostname
-```bash
-sudo hostnamectl set-hostname ceph1
-```
-#### Add FQDN mapping to /etc/hosts for local resolution
-```
-echo "192.168.68.180 ceph1.jmc.com ceph1" | sudo tee -a /etc/hosts
-```
-#### Verify hostname resolution
-```
-hostnamectl status
-ping -c 2 ceph1.jmc.com
-```
-
 ### Configure passwordless SSH access for root (required by cephadm)
 #### Generate SSH key pair for root user (no passphrase)
 ```bash
@@ -121,34 +120,69 @@ sudo chmod 700 /root/.ssh
 ```
 #### Test passwordless SSH to localhost
 ```
-sudo ssh root@ceph1 "echo 'SSH connection successful'"
+sudo ssh ceph1@ceph1 "echo 'SSH connection successful'"
 ```
 
 ---
 
 ## 📦 Step 2: Install cephadm (Official Method)
 
-### Install cephadm package via APT repository (Recommended for Ubuntu)
-#### Install cephadm package from Ubuntu repositories
+You have two methods to install `cephadm`. Choose the one that fits your needs.
+
+---
+
+#### **Method 1: Install via APT Repository (Ubuntu Default)**
+*Best for: Quick setup on Ubuntu where the default version is acceptable.*
+*⚠️ Limitation:* Installs the Ceph version bundled with your specific Ubuntu release (e.g., Ubuntu 24.04 installs Ceph Squid v19). You cannot easily choose an older or specific LTS version like Reef (v18).
+
 ```bash
+# 1. Install cephadm from Ubuntu repositories
+sudo apt update
 sudo apt install -y cephadm
-```
-#### Verify cephadm installation and check version
-```
+
+# 2. Verify installation path
 which cephadm
+# Expected Output: /usr/sbin/cephadm
+
+# 3. Check version
 cephadm version
+# Note: This might show 'UNKNOWN' on some Ubuntu packages, but check with 'dpkg -l | grep cephadm' for the real version.
 ```
 
-> 💡 **Alternative Method (if APT package unavailable):**
-> # Download and install cephadm using curl (official fallback method)
-> ```bash
-> CEPH_RELEASE=squid
-> curl --silent --location https://download.ceph.com/rpm-${CEPH_RELEASE}/el9/noarch/cephadm -o cephadm
-> chmod +x cephadm
-> sudo ./cephadm add-repo --release ${CEPH_RELEASE}
-> sudo ./cephadm install
-> ```
+---
 
+#### **Method 2: Install Specific Version using `curl` (Recommended for Production)**
+*Best for: Production environments where you need a specific version (e.g., Reef v18 LTS) regardless of your OS version.*
+*✅ Advantage:* Full control over the Ceph release.
+
+**🔍 How to find the correct download link:**
+1. Go to **[https://download.ceph.com/](https://download.ceph.com/)**.
+2. Look for the folder named `rpm-<release-name>` (e.g., `rpm-reef`, `rpm-squid`, `rpm-quincy`).
+   * `reef` = Ceph v18 (LTS)
+   * `squid` = Ceph v19 (Latest)
+   * `quincy` = Ceph v17 (Older LTS)
+3. Navigate to: `noarch` -> Click on `cephadm`.
+4. Copy the link address (Right-click > Copy Link Address). It will look like: `https://download.ceph.com/rpm-reef/el9/noarch/cephadm`.
+5. Replace the URL in the command below with your copied link.
+
+```bash
+# 1. Define your desired release (e.g., reef, squid, quincy)
+CEPH_RELEASE=reef
+
+# 2. Download the specific cephadm binary
+# Replace the URL below if you found a different link from the website
+curl --silent --remote-name --location https://download.ceph.com/rpm-${CEPH_RELEASE}/el9/noarch/cephadm
+
+# 3. Make it executable
+chmod +x cephadm
+
+# 4. Move to system path
+sudo mv cephadm /usr/sbin/cephadm
+
+# 5. Verify the specific version
+cephadm version
+# Expected Output: cephadm version 18.2.x ... reef (stable)
+```
 ---
 
 ## 🚀 Step 3: Bootstrap the New Ceph Cluster
