@@ -225,11 +225,12 @@ sudo cephadm bootstrap \
 | `--mon-ip 192.168.68.180` | Specifies the IP address for the initial Monitor daemon |
 | `--single-host-defaults` | Optimizes CRUSH rules for single-node deployment (reduces replica requirements) |
 | `--container-engine docker` | Explicitly uses Docker instead of default Podman |
-| `--initial-dashboard-user` `admin` | Setup Your User Name |
-| `--initial-dashboard-password` `admin123` | Setup the User Password |
+| `--initial-dashboard-user admin` | Setup Your User Name Replace `admin` |
+| `--initial-dashboard-password admin123` | Setup the User Password replace `admin123` |
 
 
 #### ✅ What this command does automatically:
+
 1. Pulls required Ceph container images (`ceph/ceph:v19` or latest stable)
 2. Deploys the first Monitor (`mon.ceph1`) and Manager (`mgr.ceph1`) daemons
 3. Generates `/etc/ceph/ceph.conf` and `/etc/ceph/ceph.client.admin.keyring`
