@@ -131,38 +131,51 @@ You have two methods to install `cephadm`. Choose the one that fits your needs.
 
 ---
 
-#### **Method 1: Install via APT Repository (Ubuntu Default)**
-*Best for: Quick setup on Ubuntu where the default version is acceptable.*
-*⚠️ Limitation:* Installs the Ceph version bundled with your specific Ubuntu release (e.g., Ubuntu 24.04 installs Ceph Squid v19). You cannot easily choose an older or specific LTS version like Reef (v18).
+### **Method 1: Install via APT Repository (Ubuntu Default)**
 
+**Best for:** Quick setup on Ubuntu where the default version is acceptable.
+
+**⚠️ Limitation:** Installs the Ceph version bundled with your specific Ubuntu release (e.g., Ubuntu 24.04 installs Ceph Squid v19). You cannot easily choose an older or specific LTS version like Reef (v18).
+
+#### 1. Install cephadm from Ubuntu repositories
 ```bash
-# 1. Install cephadm from Ubuntu repositories
 sudo apt update
 sudo apt install -y cephadm
-
-# 2. Verify installation path
+```
+#### 2. Verify installation path
+```
 which cephadm
-# Expected Output: /usr/sbin/cephadm
+```
+> **Expected Output:** /usr/sbin/cephadm
 
-# 3. Check version
+#### 3. Check version
+```
 cephadm version
-# Note: This might show 'UNKNOWN' on some Ubuntu packages, but check with 'dpkg -l | grep cephadm' for the real version.
+```
+> Note: This might show 'UNKNOWN' on some Ubuntu packages, but check with:
+```
+dpkg -l | grep cephadm
 ```
 
 ---
 
-#### **Method 2: Install Specific Version using `curl` (Recommended for Production)**
-*Best for: Production environments where you need a specific version (e.g., Reef v18 LTS) regardless of your OS version.*
-*✅ Advantage:* Full control over the Ceph release.
+### **Method 2: Install Specific Version using `curl` (Recommended for Production)**
+**Best for:** Production environments where you need a specific version (e.g., Reef v18 LTS) regardless of your OS version.
+**✅ Advantage:** Full control over the Ceph release.
 
 **🔍 How to find the correct download link:**
+
 1. Go to **[https://download.ceph.com/](https://download.ceph.com/)**.
+
 2. Look for the folder named `rpm-<release-name>` (e.g., `rpm-reef`, `rpm-squid`, `rpm-quincy`).
    * `reef` = Ceph v18 (LTS)
    * `squid` = Ceph v19 (Latest)
    * `quincy` = Ceph v17 (Older LTS)
+
 3. Navigate to: `noarch` -> Click on `cephadm`.
+
 4. Copy the link address (Right-click > Copy Link Address). It will look like: `https://download.ceph.com/rpm-reef/el9/noarch/cephadm`.
+
 5. Replace the URL in the command below with your copied link.
 
 ```bash
