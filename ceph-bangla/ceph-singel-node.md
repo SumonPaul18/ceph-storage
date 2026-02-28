@@ -176,37 +176,57 @@ sudo cephadm bootstrap \
 
 Cephadm ডিফল্টভাবে হোস্টে `ceph` কমান্ড ইন্সটল করে না। কমান্ড রান করার জন্য `cephadm shell` ব্যবহার করাই বেস্ট প্র্যাকটিস।
 
-#### ক্লাস্টার স্ট্যাটাস চেক করুন
-```bash
+#### ✅  ১ ক্লাস্টার স্ট্যাটাস চেক করুন
+```
 sudo cephadm shell -- ceph -s
 ```
-#### সঠিক ভার্সন কনফার্ম করুন
+#### ✅  ২ সঠিক ভার্সন কনফার্ম করুন
 ```
 sudo cephadm shell -- ceph -v
 ```
 > Expected: ceph version 18.2.7 (...) reef (stable)
 
-#### ড্যাশবোর্ড এক্সেস চেক
+#### ✅  ৩ ড্যাশবোর্ড এক্সেস চেক
 ```
 sudo cephadm shell -- ceph mgr services
 ```
 > Output: {"dashboard": "https://ceph2:8443/"}
 
+#### ✅ ৪. ক্লাস্টার হেলথ
+sudo cephadm shell -- ceph health detail
 
-#### অথবা ইন্টারেক্টিভ শেলে ঢুকুন
+#### ✅ ৫. সার্ভিস লিস্ট
+sudo cephadm shell -- ceph orch ls
+
+#### ✅ ৬. হোস্ট লিস্ট
+sudo cephadm shell -- ceph orch host ls
+
+#### ✅ ৭. ভার্সন ম্যাট্রিক্স
+sudo cephadm shell -- ceph versions
+
+#### ✅ ৮. অর্কেস্ট্রেটর স্ট্যাটাস
+sudo cephadm shell -- ceph orch status
+
+#### ✅ ৯. নেটওয়ার্ক কনফিগ
+sudo cephadm shell -- ceph config dump | grep network
+
+---
+
+### অথবা - ইন্টারেক্টিভ শেলে ঢুকুন
 ```
 sudo cephadm shell
 ```
-      #### এখন ভেতরে সরাসরি ceph কমান্ড চালাতে পারবেন
-      ```
-      ceph status
-      ```
-      #### এবং ইন্টারেক্টিভ cephadm shell থেকে বাহির হওয়ার জন্যঃ 
-      ```
-      exit
-      ```
+#### এখন ভেতরে সরাসরি ceph কমান্ড চালাতে পারবেন
+```
+ceph status
+```
+#### এবং ইন্টারেক্টিভ cephadm shell থেকে বাহির হওয়ার জন্যঃ 
+```
+exit
+```
+---
 
-#### ceph-common প্যাকেজ ইনস্টল করলে হোস্ট থেকে সরাসরি ceph কমান্ড চালাতে পারবেন
+### ceph-common প্যাকেজ ইনস্টল করলে হোস্ট থেকে সরাসরি ceph কমান্ড চালাতে পারবেন
 ```
 sudo cephadm install ceph-common
 ```
@@ -214,8 +234,12 @@ sudo cephadm install ceph-common
 ```
 sudo apt install -y ceph-common
 ```
-> এখন আর ইন্টারেক্টিভ শেলে Open না করেই সরাসরি ceph কমান্ড চালাতে পারবো 
-#### ভেরিফিকেশন
+> এখন আর ইন্টারেক্টিভ শেলে Open না করেই সরাসরি ceph কমান্ড চালাতে পারবো
+#### ceph-common প্যাকেজ চেক করা
+```
+dpkg -l | grep ceph-common 
+```
+#### # Ceph ভার্সন চেক করা
 ```
 ceph -v
 ```
