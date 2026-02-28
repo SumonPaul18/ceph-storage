@@ -242,37 +242,124 @@ sudo cephadm bootstrap \
 
 ---
 
-## 🔧 Step 4: Configure Ceph CLI Access
+## 🔧 Step 4: Managing Ceph Cluster via Command Line 
 
-### Use cephadm shell to run Ceph commands (Recommended approach)
-#### Check overall cluster health status
+ **Best Practice Note:** By default, `cephadm` does not install the `ceph` binary directly on the host to avoid dependency conflicts. The recommended approach for production environments is to use `cephadm shell`, which runs commands inside a container with the exact matching version of Ceph tools.
+
+---
+
+### 🔹 Method 1: Using `cephadm shell` (Recommended for Production)
+*This method ensures you are always using the correct version of the Ceph CLI that matches your cluster, regardless of what is installed on the host OS.*
+
+#### 1. Check Cluster Status
 ```bash
 sudo cephadm shell -- ceph -s
 ```
-#### Enter interactive cephadm shell for multiple commands
+
+#### 2. Verify Ceph Version
+Ensure the running version matches your target release (e.g., Reef v18).
+```bash
+sudo cephadm shell -- ceph -v
 ```
+> **Expected Output:** `ceph version 18.2.x (...) reef (stable)`
+
+#### 3. Check Dashboard Access URL
+Retrieve the HTTPS URL and login credentials for the Ceph Dashboard.
+```bash
+sudo cephadm shell -- ceph mgr services
+```
+> **Output Example:** `{"dashboard": "https://ceph-node-01:8443/"}`
+
+#### 4. Detailed Cluster Health
+Check for any warnings or errors in the cluster health status.
+```bash
+sudo cephadm shell -- ceph health detail
+```
+
+#### 5. List Orchestrator Services
+View all running Ceph daemons (MON, MGR, OSD, RGW, etc.) managed by the orchestrator.
+```bash
+sudo cephadm shell -- ceph orch ls
+```
+
+#### 6. List Cluster Hosts
+Verify which nodes are part of the Ceph cluster.
+```bash
+sudo cephadm shell -- ceph orch host ls
+```
+
+#### 7. Check Component Versions
+See the version of each individual Ceph component running across the cluster.
+```bash
+sudo cephadm shell -- ceph versions
+```
+
+#### 8. Orchestrator Status
+Check if the orchestrator module is active and functioning.
+```bash
+sudo cephadm shell -- ceph orch status
+```
+
+#### 9. Verify Network Configuration
+Inspect network settings (Public/Cluster networks) applied to the daemons.
+```bash
+sudo cephadm shell -- ceph config dump | grep network
+```
+
+---
+
+## 🔹 Method 2: Interactive Shell Mode
+*Useful for running multiple commands sequentially without typing `sudo cephadm shell --` every time.*
+
+#### 1. Enter the Interactive Shell
+```bash
 sudo cephadm shell
 ```
-#### Inside the shell, you can now run Ceph commands directly:
+*(You will see the prompt change, indicating you are now inside the Ceph container context)*
+
+#### 2. Run Commands Directly
 ```bash
 ceph status
 ceph osd tree
 ceph df
 ```
-#### Type 'exit' to leave the interactive shell
-```
-exit  
+
+#### 3. Exit the Shell
+Return to the host system shell.
+```bash
+exit
 ```
 
-### (Optional) Create a convenient alias for frequent use
-#### Add alias to ~/.bashrc for easier cephadm shell access
+---
+
+## 🔹 Method 3: Installing `ceph-common` on Host (Alternative)
+*If you prefer running `ceph` commands directly from the host shell (e.g., for scripting or automation tools like Ansible), you can install the `ceph-common` package.*
+
+> ⚠️ **Production Warning:** Ensure the version of `ceph-common` installed on the host matches the cluster version to avoid protocol mismatches. Using `cephadm shell` is generally safer for manual administration.
+
+#### 1. Install `ceph-common`
+**Option A: Via cephadm (Recommended)**
 ```bash
-echo 'alias ceph-shell="sudo cephadm shell"' >> ~/.bashrc
-source ~/.bashrc
+sudo cephadm install ceph-common
 ```
-#### Now you can use: ceph-shell -- ceph -s
+
+**Option B: Via APT (Manual)**
+```bash
+sudo apt update
+sudo apt install -y ceph-common
 ```
-ceph-shell -- ceph status
+> Now you can run `ceph` commands directly without opening the interactive shell.
+#### 2. Verify Installation
+Check if the package is installed correctly.
+```bash
+dpkg -l | grep ceph-common
+```
+
+#### 3. Run Commands Directly on Host
+Now you can run Ceph commands without the shell wrapper.
+```bash
+ceph -v
+ceph -s
 ```
 
 ---
