@@ -193,23 +193,29 @@ sudo cephadm shell -- ceph mgr services
 > Output: {"dashboard": "https://ceph2:8443/"}
 
 #### ✅ ৪. ক্লাস্টার হেলথ
+```
 sudo cephadm shell -- ceph health detail
-
+```
 #### ✅ ৫. সার্ভিস লিস্ট
+```
 sudo cephadm shell -- ceph orch ls
-
+```
 #### ✅ ৬. হোস্ট লিস্ট
+```
 sudo cephadm shell -- ceph orch host ls
-
+```
 #### ✅ ৭. ভার্সন ম্যাট্রিক্স
+```
 sudo cephadm shell -- ceph versions
-
+```
 #### ✅ ৮. অর্কেস্ট্রেটর স্ট্যাটাস
+```
 sudo cephadm shell -- ceph orch status
-
+```
 #### ✅ ৯. নেটওয়ার্ক কনফিগ
+```
 sudo cephadm shell -- ceph config dump | grep network
-
+```
 ---
 
 ### অথবা - ইন্টারেক্টিভ শেলে ঢুকুন
