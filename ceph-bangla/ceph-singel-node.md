@@ -197,14 +197,14 @@ sudo cephadm shell -- ceph mgr services
 ```
 sudo cephadm shell
 ```
-   #### এখন ভেতরে সরাসরি ceph কমান্ড চালাতে পারবেন
-   ```
-   ceph status
-   ```
-   #### এবং ইন্টারেক্টিভ cephadm shell থেকে বাহির হওয়ার জন্যঃ 
-   ```
-   exit
-   ```
+      #### এখন ভেতরে সরাসরি ceph কমান্ড চালাতে পারবেন
+      ```
+      ceph status
+      ```
+      #### এবং ইন্টারেক্টিভ cephadm shell থেকে বাহির হওয়ার জন্যঃ 
+      ```
+      exit
+      ```
 
 #### ceph-common প্যাকেজ ইনস্টল করলে হোস্ট থেকে সরাসরি ceph কমান্ড চালাতে পারবেন
 ```
