@@ -308,7 +308,7 @@ sudo cephadm shell -- ceph config dump | grep network
 
 ---
 
-## 🔹 Method 2: Interactive Shell Mode
+### 🔹 Method 2: Interactive Shell Mode
 *Useful for running multiple commands sequentially without typing `sudo cephadm shell --` every time.*
 
 #### 1. Enter the Interactive Shell
@@ -332,7 +332,7 @@ exit
 
 ---
 
-## 🔹 Method 3: Installing `ceph-common` on Host (Alternative)
+### 🔹 Method 3: Installing `ceph-common` on Host (Alternative)
 *If you prefer running `ceph` commands directly from the host shell (e.g., for scripting or automation tools like Ansible), you can install the `ceph-common` package.*
 
 > ⚠️ **Production Warning:** Ensure the version of `ceph-common` installed on the host matches the cluster version to avoid protocol mismatches. Using `cephadm shell` is generally safer for manual administration.
