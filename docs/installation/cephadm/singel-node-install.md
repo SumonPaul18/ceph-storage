@@ -665,26 +665,29 @@ sudo cephadm shell -- ceph config set mgr mgr/dashboard/server_port 9443
 ### Step 1: Identify and Remove the Cluster
 First, identify the running cluster's FSID and remove it.
 
-```bash
-# 1. List running clusters and check FSID
+#### 1. List running clusters and check FSID
+```
 sudo cephadm ls
+```
+> Copy the FSID from the output (e.g., 438ec756-12f7-11f1-89d6-bc241192dd00)
 
-# Copy the FSID from the output (e.g., 438ec756-12f7-11f1-89d6-bc241192dd00)
-
-# 2. Force remove the cluster
-# Replace <YOUR-FSID> with your actual FSID
+#### 2. Force remove the cluster
+#### Replace <YOUR-FSID> with your actual FSID
+```
 sudo cephadm rm-cluster --fsid <YOUR-FSID> --force
 ```
 
-### Step 2: Cleanup Containers and Volumes
+#### Step 2: Cleanup Containers and Volumes
 Since Ceph is containerized, clean up residual Docker or Podman artifacts. Run the commands corresponding to your runtime.
 
 #### If using Docker:
-```bash
-# Stop and remove all Ceph containers
-sudo docker rm -f $(sudo docker ps -aq --filter name=ceph-) 2>/dev/null
 
-# Prune unused volumes, networks, and images
+#### Stop and remove all Ceph containers
+```
+sudo docker rm -f $(sudo docker ps -aq --filter name=ceph-) 2>/dev/null
+```
+#### Prune unused volumes, networks, and images
+```
 sudo docker volume prune -f
 sudo docker network prune -f
 sudo docker image prune -a -f
@@ -692,56 +695,63 @@ sudo docker system prune -a -f --volumes
 ```
 
 #### If using Podman (Cephadm Default):
-```bash
-# Stop and remove all Ceph containers
-sudo podman rm -f $(sudo podman ps -aq --filter name=ceph-) 2>/dev/null
 
-# Prune unused volumes and networks
+#### Stop and remove all Ceph containers
+```
+sudo podman rm -f $(sudo podman ps -aq --filter name=ceph-) 2>/dev/null
+```
+#### Prune unused volumes and networks
+```
 sudo podman volume prune -f
 sudo podman network prune -f
-# Optional: Prune images
 sudo podman image prune -a -f
 ```
 
 ### Step 3: Uninstall APT Packages
 Remove `cephadm` and related tools from the system.
 
-```bash
-# Completely remove cephadm and ceph-common packages (including configs)
-sudo apt remove --purge cephadm ceph-common -y
 
-# Remove unnecessary dependencies
+#### Completely remove cephadm and ceph-common packages (including configs)
+```
+sudo apt remove --purge cephadm ceph-common -y
+```
+#### Remove unnecessary dependencies
+```
 sudo apt autoremove -y
 ```
 
-### Step 4: Cleanup File System and Configurations
+#### Step 4: Cleanup File System and Configurations
 Delete all remaining configuration files, logs, and data directories.
 
-```bash
 # Remove main Ceph directories
+```
 sudo rm -rf /etc/ceph
 sudo rm -rf /var/lib/ceph
 sudo rm -rf /var/log/ceph
 sudo rm -rf /var/cache/ceph
-
-# Remove Rook directory if applicable
+```
+#### Remove Rook directory if applicable
+```
 sudo rm -rf /var/lib/rook
-
-# Remove cephadm binaries and scripts (check multiple locations)
+```
+#### Remove cephadm binaries and scripts (check multiple locations)
+```
 sudo rm -f /usr/sbin/cephadm
 sudo rm -f /usr/local/bin/cephadm
 sudo rm -f ./cephadm  # If present in current directory
-
-# Remove APT repository and GPG key
+```
+#### Remove APT repository and GPG key
+```
 sudo rm -f /etc/apt/sources.list.d/ceph.list
 sudo rm -f /usr/share/keyrings/ceph-archive-keyring.gpg
-
-# Remove Ceph SSH key entries from root's authorized_keys (if any)
+```
+#### Remove Ceph SSH key entries from root's authorized_keys (if any)
+```
 sudo sed -i '/ceph-public/d' /root/.ssh/authorized_keys 2>/dev/null
 sudo sed -i '/ceph-admin/d' /root/.ssh/authorized_keys 2>/dev/null
 ```
 
-### Step 5: System Reboot and Verification
+#### Step 5: System Reboot and Verification
 Reboot the server to apply changes and clear memory states.
 
 ```bash
@@ -751,21 +761,39 @@ sudo reboot
 **Post-Reboot Verification:**
 After logging back in, run the following commands to ensure everything is clean:
 
-```bash
-# 1. Check config directory (Should return "No such file or directory")
+#### 1. Check config directory (Should return "No such file or directory")
+```
 ls /etc/ceph
-
-# 2. Check cephadm command (Should return "Command not found")
+```
+#### 2. Check cephadm command (Should return "Command not found")
+```
 cephadm --version
-
-# 3. Check for running containers (No ceph containers should exist)
+```
+#### 3. Check for running containers (No ceph containers should exist)
+```
 sudo podman ps -a | grep ceph
+```
 # OR
+```
 sudo docker ps -a | grep ceph
 ```
 
 Your system is now completely clean and ready for a fresh Ceph installation.
 
+
+### 💡 Pro Tips for Sumon (DevOps Context):
+1.  **Disk Wiping (Optional but Recommended for Fresh Start):** If you plan to reuse the same physical disks for OSDs in the new installation, it's good practice to wipe the partition tables after uninstalling Ceph to avoid "device busy" or "already mounted" errors during the new bootstrap.
+    
+    # Example: Wipe partition table for /dev/sdb (BE CAREFUL WITH DEVICE NAME)
+    ```
+    sudo sgdisk --zap-all /dev/sdb
+    sudo dd if=/dev/zero of=/dev/sdb bs=1M count=100 oflag=direct,dsync
+    sudo blkdiscard /dev/sdb
+    ```
+2.  **LVM Cleanup:** Ceph often leaves LVM metadata. If `vgdisplay` shows leftover volume groups named `ceph-<fsid>`, remove them manually:
+    ```bash
+    sudo vgremove -f ceph-<fsid>
+    ```
 
 ---
 
