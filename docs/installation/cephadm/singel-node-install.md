@@ -666,7 +666,11 @@ First, identify the running cluster's FSID and remove it.
 
 #### 1. List running clusters and check FSID
 ```
-sudo cephadm ls
+cat /etc/ceph/ceph.conf | grep fsid
+```
+#### OR
+```
+sudo cephadm ls | grep fsid
 ```
 > Copy the FSID from the output (e.g., 438ec756-12f7-11f1-89d6-bc241192dd00)
 
