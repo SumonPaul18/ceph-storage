@@ -215,7 +215,6 @@ cephadm version
 sudo cephadm bootstrap \
   --mon-ip 192.168.68.180 \
   --single-host-defaults \
-  --container-engine docker  \
   --initial-dashboard-user admin \
   --initial-dashboard-password admin123
 ```
@@ -738,7 +737,7 @@ sudo rm -rf /var/lib/rook
 ```
 sudo rm -f /usr/sbin/cephadm
 sudo rm -f /usr/local/bin/cephadm
-sudo rm -f ./cephadm  # If present in current directory
+sudo rm -f ./cephadm
 ```
 #### Remove APT repository and GPG key
 ```
