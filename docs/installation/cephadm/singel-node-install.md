@@ -658,7 +658,7 @@ sudo cephadm shell -- ceph config set mgr mgr/dashboard/server_port 9443
 
 ---
 
-## Complete Ceph Uninstall & Cleanup Guide
+🧹🪣 ## Complete Ceph Uninstall & Cleanup Guide
 
 > ⚠️ **WARNING:** This process will permanently delete all Ceph data, configurations, storage pools, OSDs, and the cluster itself. Ensure you have taken necessary backups before running these commands in a production environment.
 
