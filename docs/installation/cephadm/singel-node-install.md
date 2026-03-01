@@ -773,7 +773,7 @@ cephadm --version
 ```
 sudo podman ps -a | grep ceph
 ```
-# OR
+#### OR
 ```
 sudo docker ps -a | grep ceph
 ```
@@ -784,16 +784,16 @@ Your system is now completely clean and ready for a fresh Ceph installation.
 ### 💡 Pro Tips for Sumon (DevOps Context):
 1.  **Disk Wiping (Optional but Recommended for Fresh Start):** If you plan to reuse the same physical disks for OSDs in the new installation, it's good practice to wipe the partition tables after uninstalling Ceph to avoid "device busy" or "already mounted" errors during the new bootstrap.
     
-    # Example: Wipe partition table for /dev/sdb (BE CAREFUL WITH DEVICE NAME)
-    ```
-    sudo sgdisk --zap-all /dev/sdb
-    sudo dd if=/dev/zero of=/dev/sdb bs=1M count=100 oflag=direct,dsync
-    sudo blkdiscard /dev/sdb
-    ```
+#### Example: Wipe partition table for /dev/sdb (BE CAREFUL WITH DEVICE NAME)
+```
+sudo sgdisk --zap-all /dev/sdb
+sudo dd if=/dev/zero of=/dev/sdb bs=1M count=100 oflag=direct,dsync
+sudo blkdiscard /dev/sdb
+```
 2.  **LVM Cleanup:** Ceph often leaves LVM metadata. If `vgdisplay` shows leftover volume groups named `ceph-<fsid>`, remove them manually:
-    ```bash
-    sudo vgremove -f ceph-<fsid>
-    ```
+```bash
+sudo vgremove -f ceph-<fsid>
+```
 
 ---
 
