@@ -114,20 +114,20 @@ osd_pool_default_min_size = 2
 > - MON process crashed on multiple nodes
 
 **Solution:**
-# 1. Check time sync on all nodes
+#### 1. Check time sync on all nodes
 ```bash
 chronyc sources -v
 ```
-# 2. Check MON status
+#### 2. Check MON status
 ```
 cephadm shell -- ceph mon dump
 ```
-# 3. If one MON is down, restart it
+#### 3. If one MON is down, restart it
 ```
 cephadm shell -- ceph orch restart mon.ceph-node2
 ```
-# 4. If multiple MONs down, manually restore quorum (advanced)
-# Stop all MONs, start one with --force-quorum, then add others back
+#### 4. If multiple MONs down, manually restore quorum (advanced)
+> Stop all MONs, start one with --force-quorum, then add others back
 
 **Prevention:** 
 - Always use odd number of MONs (3, 5, 7)
@@ -153,21 +153,21 @@ cephadm shell -- ceph orch restart mon.ceph-node2
 
 **Solution:**
 
-# 1. Check data distribution
+#### 1. Check data distribution
 ```
 cephadm shell -- ceph osd df
 ```
-# 2. View current CRUSH map
+#### 2. View current CRUSH map
 ```
 cephadm shell -- ceph osd crush dump
 ```
-# 3. Rebalance cluster (automatic, but can trigger manually)
+#### 3. Rebalance cluster (automatic, but can trigger manually)
 ```
 cephadm shell -- ceph osd reweight-by-utilization
 ```
-# 4. For new pools, calculate proper pg_num:
-# Formula: (OSD_count * 100) / replication_factor
-# Example: 6 OSDs, replication 3 → (6*100)/3 = 200 → use 256 (power of 2)
+#### 4. For new pools, calculate proper pg_num:
+#### Formula: (OSD_count * 100) / replication_factor
+#### Example: 6 OSDs, replication 3 → (6*100)/3 = 200 → use 256 (power of 2)
 ```
 cephadm shell -- ceph osd pool create mypool 256 256
 ```
@@ -196,22 +196,22 @@ cephadm shell -- ceph osd pool create mypool 256 256
 
 **Solution:**
 
-# 1. Identify which partition has majority
+#### 1. Identify which partition has majority
 ```
 cephadm shell -- ceph mon dump
 ```
-# 2. On minority partition, STOP all Ceph services to prevent data corruption
+#### 2. On minority partition, STOP all Ceph services to prevent data corruption
 ```
 systemctl stop ceph-mon@*.service
 systemctl stop ceph-osd@*.service
 ```
-# 3. Restore network connectivity
+#### 3. Restore network connectivity
 
-# 4. On majority partition, verify cluster health
+#### 4. On majority partition, verify cluster health
 ```
 cephadm shell -- ceph -s
 ```
-# 5. If data conflict occurred, manual recovery may be needed (contact Ceph support)
+#### 5. If data conflict occurred, manual recovery may be needed (contact Ceph support)
 
 
 **Prevention:**
@@ -239,21 +239,21 @@ cephadm shell -- ceph -s
 
 **Solution:**
 
-# 1. Check PG status
+#### 1. Check PG status
 ```
 cephadm shell -- ceph pg stat
 cephadm shell -- ceph pg dump_stuck
 ```
-# 2. For stuck PGs, try recovery
+#### 2. For stuck PGs, try recovery
 ```
 cephadm shell -- ceph pg repair <pg_id>
 ```
-# 3. If pool has too few PGs, increase (careful: requires data migration)
+#### 3. If pool has too few PGs, increase (careful: requires data migration)
 ```
 cephadm shell -- ceph osd pool set mypool pg_num 512
 cephadm shell -- ceph osd pool set mypool pgp_num 512
 ```
-# 4. Wait for rebalancing to complete
+#### 4. Wait for rebalancing to complete
 ```
 cephadm shell -- ceph -s  # Check until "active+clean"
 ```
@@ -282,19 +282,19 @@ cephadm shell -- ceph -s  # Check until "active+clean"
 
 **Solution:**
 
-# 1. Check OSD performance
+#### 1. Check OSD performance
 ```
 cephadm shell -- ceph osd perf
 ```
-# 2. If using HDDs, add dedicated SSD for WAL/DB during OSD creation:
+#### 2. If using HDDs, add dedicated SSD for WAL/DB during OSD creation:
 ```
 cephadm shell -- ceph orch daemon add osd ceph-node1:/dev/sdb:/dev/nvme0n1p1
 ```
 > Format: <data_disk>:<wal_db_device>
 
-# 3. For existing OSDs, migration is complex - consider replacing with new OSDs
+#### 3. For existing OSDs, migration is complex - consider replacing with new OSDs
 
-# 4. Monitor WAL usage
+#### 4. Monitor WAL usage
 ```
 cephadm shell -- ceph daemon osd.<id> bluestore allocator stats block
 ```
@@ -325,21 +325,21 @@ cephadm shell -- ceph daemon osd.<id> bluestore allocator stats block
 ### Prerequisites Check (Run on ALL Nodes: Node1, Node2, Node3)
 
 
-# 1. Update system
+#### 1. Update system
 ```
 sudo apt update && sudo apt upgrade -y
 ```
-# 2. Install basic tools
+#### 2. Install basic tools
 ```
 sudo apt install -y curl wget gnupg2 lsb-release software-properties-common apt-transport-https
 ```
-# 3. Set hostname (replace with actual node name)
+#### 3. Set hostname (replace with actual node name)
 ```
-sudo hostnamectl set-hostname ceph-node1  # On Node1
-sudo hostnamectl set-hostname ceph-node2  # On Node2
-sudo hostnamectl set-hostname ceph-node3  # On Node3
+sudo hostnamectl set-hostname ceph-node1
+sudo hostnamectl set-hostname ceph-node2
+sudo hostnamectl set-hostname ceph-node3
 ```
-# 4. Configure /etc/hosts (on ALL nodes)
+#### 4. Configure /etc/hosts (on ALL nodes)
 ```
 sudo nano /etc/hosts
 ```
@@ -351,15 +351,15 @@ sudo nano /etc/hosts
 ```
 
 
-# 5. Install and configure Chrony (time sync)
+#### 5. Install and configure Chrony (time sync)
 ```
 sudo apt install -y chrony
 sudo systemctl enable --now chrony
 chronyc sources -v  
 ```
-> # Verify: look for '*' next to server
+> Verify: look for '*' next to server
 
-# 6. Configure firewall (production-safe)
+#### 6. Configure firewall (production-safe)
 ```
 sudo ufw allow 22/tcp
 sudo ufw allow 6789/tcp
@@ -375,7 +375,7 @@ sudo ufw enable
 > sudo ufw allow 8443/tcp     # Dashboard
 > sudo ufw enable
 
-# For lab testing only, you can disable:
+#### For lab testing only, you can disable:
 ```
 sudo ufw disable
 ```
@@ -385,37 +385,37 @@ sudo ufw disable
 ### Docker Installation (Run on ALL Nodes)
 
 
-# 1. Remove old/conflicting Docker packages
+#### 1. Remove old/conflicting Docker packages
 ```
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do 
     sudo apt remove -y $pkg
 done
 ```
-# 2. Add Docker's official GPG key
+#### 2. Add Docker's official GPG key
 ```
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
 ```
-# 3. Add Docker repository
+#### 3. Add Docker repository
 ```
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
-# 4. Install Docker
+#### 4. Install Docker
 ```
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
-# 5. Start and enable Docker
+#### 5. Start and enable Docker
 ```
 sudo systemctl enable --now docker
 ```
-# 6. Add current user to docker group (avoid sudo for docker commands)
+#### 6. Add current user to docker group (avoid sudo for docker commands)
 ```
 sudo usermod -aG docker $USER
 newgrp docker  # Apply group change without logout
 ```
-# 7. Verify Docker
+#### 7. Verify Docker
 ```
 docker --version
 docker run hello-world  # Should show "Hello from Docker!"
@@ -426,18 +426,18 @@ docker run hello-world  # Should show "Hello from Docker!"
 ### SSH Configuration for cephadm (Run on Bootstrap Node: Node1)
 
 
-# 1. Generate SSH key (on Node1)
+#### 1. Generate SSH key (on Node1)
 ```
 ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/ceph_id_rsa
 ```
-# 2. Copy public key to other nodes
+#### 2. Copy public key to other nodes
 ```
 ssh-copy-id -i ~/.ssh/ceph_id_rsa.pub root@ceph-node2
 ssh-copy-id -i ~/.ssh/ceph_id_rsa.pub root@ceph-node3
 ```
 > Enter 'yes' and root password when prompted
 
-# 3. Create SSH config file (on Node1) for easier access
+#### 3. Create SSH config file (on Node1) for easier access
 ```
 nano ~/.ssh/config
 ```
@@ -459,7 +459,7 @@ Host ceph-node3
     User root
 ```
 
-# 4. Test passwordless SSH
+#### 4. Test passwordless SSH
 ```
 ssh ceph-node2 "hostname"  # Should return "ceph-node2" without password prompt
 ssh ceph-node3 "hostname"  # Should return "ceph-node3"
@@ -470,17 +470,17 @@ ssh ceph-node3 "hostname"  # Should return "ceph-node3"
 ### Cephadm Installation & Bootstrap (Run on Node1 ONLY)
 
 
-# 1. Download cephadm tool
+#### 1. Download cephadm tool
 ```
 curl --silent --remote-name --location https://raw.githubusercontent.com/ceph/ceph/stable/src/cephadm/cephadm
 chmod +x cephadm
 sudo mv cephadm /usr/sbin/cephadm
 ```
-# 2. Verify installation
+#### 2. Verify installation
 ```
 cephadm version
 ```
-# 3. Bootstrap the cluster (first MON + MGR)
+#### 3. Bootstrap the cluster (first MON + MGR)
 ```
 sudo cephadm bootstrap --mon-ip 192.168.10.11 --ssh-private-key ~/.ssh/ceph_id_rsa
 ```
@@ -491,7 +491,7 @@ sudo cephadm bootstrap --mon-ip 192.168.10.11 --ssh-private-key ~/.ssh/ceph_id_r
 - Password: `[random password shown in output]`
 
 
-# 4. Check cluster status
+#### 4. Check cluster status
 ```
 sudo cephadm shell -- ceph -s
 ```
@@ -502,17 +502,17 @@ sudo cephadm shell -- ceph -s
 ### Add Remaining Nodes (Run on Node1)
 
 
-# 1. Copy cephadm public SSH key to other nodes
+#### 1. Copy cephadm public SSH key to other nodes
 ```
 ssh-copy-id -f -i /etc/ceph/ceph.pub root@ceph-node2
 ssh-copy-id -f -i /etc/ceph/ceph.pub root@ceph-node3
 ```
-# 2. Add hosts to cluster
+#### 2. Add hosts to cluster
 ```
 sudo cephadm host add --hostname ceph-node2
 sudo cephadm host add --hostname ceph-node3
 ```
-# 3. Verify hosts are added
+#### 3. Verify hosts are added
 ```
 sudo cephadm shell -- ceph orch host ls
 ```
@@ -523,17 +523,17 @@ sudo cephadm shell -- ceph orch host ls
 ### Prepare Data Disks (Run on ALL Nodes)
 
 
-# 1. Identify data disks (example: /dev/sdb)
+#### 1. Identify data disks (example: /dev/sdb)
 ```
 lsblk
 ```
 > Confirm disk has no partitions or mount points
 
-# 2. Clean disk if needed (WARNING: erases all data!)
+#### 2. Clean disk if needed (WARNING: erases all data!)
 ```
 sudo wipefs -a /dev/sdb
 ```
-# 3. Verify disk is clean
+#### 3. Verify disk is clean
 ```
 lsblk /dev/sdb
 ```
@@ -544,24 +544,24 @@ lsblk /dev/sdb
 ### Deploy OSDs (Run on Node1)
 
 
-# Option A: Auto-deploy all available empty disks (simple)
+#### Option A: Auto-deploy all available empty disks (simple)
 ```
 sudo cephadm shell -- ceph orch apply osd --all-available-devices
 ```
-# Option B: Deploy specific disks (production recommended)
+#### Option B: Deploy specific disks (production recommended)
 ```
 sudo cephadm shell -- ceph orch daemon add osd ceph-node1:/dev/sdb
 sudo cephadm shell -- ceph orch daemon add osd ceph-node2:/dev/sdb
 sudo cephadm shell -- ceph orch daemon add osd ceph-node3:/dev/sdb
 ```
-# For HDD + SSD WAL setup:
-# sudo cephadm shell -- ceph orch daemon add osd ceph-node1:/dev/sdb:/dev/nvme0n1p1
+#### For HDD + SSD WAL setup:
+#### sudo cephadm shell -- ceph orch daemon add osd ceph-node1:/dev/sdb:/dev/nvme0n1p1
 
-# 1. Check OSD deployment status
+#### 1. Check OSD deployment status
 ```
 sudo cephadm shell -- ceph orch ps --daemon_type osd
 ```
-# 2. Verify OSD tree
+#### 2. Verify OSD tree
 ```
 sudo cephadm shell -- ceph osd tree
 ```
@@ -573,19 +573,19 @@ sudo cephadm shell -- ceph osd tree
 ### Enable Dashboard & Monitoring (Run on Node1)
 
 
-# 1. Enable dashboard module
+#### 1. Enable dashboard module
 ```
 sudo cephadm shell -- ceph mgr module enable dashboard
 ```
-# 2. Create self-signed certificate
+#### 2. Create self-signed certificate
 ```
 sudo cephadm shell -- ceph dashboard create-self-signed-cert
 ```
-# 3. Create admin user with custom password
+#### 3. Create admin user with custom password
 ```
 sudo cephadm shell -- ceph dashboard ac-user-create admin YourSecurePassword123 --role administrator
 ```
-# 4. Get dashboard URL
+#### 4. Get dashboard URL
 ```
 sudo cephadm shell -- ceph mgr services
 ```
@@ -605,7 +605,7 @@ sudo cephadm shell -- ceph orch apply grafana
 sudo cephadm shell -- ceph orch apply node_exporter
 sudo cephadm shell -- ceph orch apply alertmanager
 ```
-# Access Grafana: http://<node-ip>:3000 (default admin/admin)
+#### Access Grafana: http://<node-ip>:3000 (default admin/admin)
 
 
 ---
@@ -615,24 +615,24 @@ sudo cephadm shell -- ceph orch apply alertmanager
 ### Daily Health Checks
 
 
-# Overall cluster health
+#### Overall cluster health
 ```
 sudo cephadm shell -- ceph -s
 ```
-# Detailed health issues
+#### Detailed health issues
 ```
 sudo cephadm shell -- ceph health detail
 ```
-# Storage usage
+#### Storage usage
 ```
 sudo cephadm shell -- ceph df
 ```
-# OSD status
+#### OSD status
 ```
 sudo cephadm shell -- ceph osd tree
 sudo cephadm shell -- ceph osd stat
 ```
-# PG status (should be "active+clean")
+#### PG status (should be "active+clean")
 ```
 sudo cephadm shell -- ceph pg stat
 ```
@@ -650,11 +650,11 @@ sudo cephadm shell -- ceph pg stat
 ### Backup & Recovery
 
 
-# Backup critical Ceph configuration
+#### Backup critical Ceph configuration
 ```
 sudo tar -czf /backup/ceph-config-$(date +%F).tar.gz /etc/ceph
 ```
-# Backup monitor keyring (essential for cluster recovery)
+#### Backup monitor keyring (essential for cluster recovery)
 ```
 sudo cp /etc/ceph/ceph.client.admin.keyring /backup/
 ```
@@ -709,7 +709,7 @@ sudo cp /etc/ceph/ceph.client.admin.keyring /backup/
 
 ---
 
-#### Final Verification
+### Final Verification
 
 After completing all steps, run this final check:
 
