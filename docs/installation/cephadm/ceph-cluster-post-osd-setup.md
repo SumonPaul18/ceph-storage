@@ -82,43 +82,17 @@ sudo apt update && sudo apt upgrade -y
 # 2. Install Ceph client tools
 sudo apt install -y ceph-common
 
-# 3. Create Ceph config directory
-sudo mkdir -p /etc/ceph
+# 3. Copy ceph.conf & keyring from Ceph Bootstrap node
+# Run From Client:
+scp root@ceph-node1:/etc/ceph/ceph.conf /etc/ceph/
+scp root@ceph-node1:/etc/ceph/ceph.client.admin.keyring /etc/ceph/
 
-# 4. Copy ceph.conf from your Ceph admin node (Node1)
-# From Node1, run:
-scp /etc/ceph/ceph.conf user@client-machine:/tmp/ceph.conf
+# Given right permission
+sudo chmod 644 /etc/ceph/ceph.conf
+sudo chmod 600 /etc/ceph/ceph.client.admin.keyring
 # Then on client:
 sudo mv /tmp/ceph.conf /etc/ceph/ceph.conf
 sudo chmod 644 /etc/ceph/ceph.conf
-
-# 5. Create a dedicated client user (more secure than using admin)
-# On Ceph Admin Node (Node1):
-sudo cephadm shell -- ceph auth get-or-create client.myapp mon 'allow r' osd 'allow rwx pool=myapp-pool' -o /etc/ceph/ceph.client.myapp.keyring
-
-# 6. Copy the keyring to client
-scp /etc/ceph/ceph.client.myapp.keyring user@client-machine:/tmp/ceph.client.myapp.keyring
-sudo mv /tmp/ceph.client.myapp.keyring /etc/ceph/ceph.client.myapp.keyring
-sudo chmod 600 /etc/ceph/ceph.client.myapp.keyring
-sudo chown root:root /etc/ceph/ceph.client.myapp.keyring
-
-# 7. Test client connection
-ceph --name client.myapp --keyring /etc/ceph/ceph.client.myapp.keyring -s
-# Should show cluster status without password prompt
-```
-
-### 2.4 Client Configuration File Example
-
-**`/etc/ceph/ceph.conf` on client:**
-```ini
-[global]
-fsid = your-cluster-fsid-from-bootstrap
-mon_host = 192.168.10.11,192.168.10.12,192.168.10.13
-public_network = 192.168.10.0/24
-
-# Optional: Performance tuning for client
-rbd_cache = true
-rbd_cache_writethrough_until_flush = true
 ```
 
 ---
