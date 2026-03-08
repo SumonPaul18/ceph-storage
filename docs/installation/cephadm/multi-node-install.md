@@ -413,12 +413,15 @@ sudo systemctl enable --now docker
 #### 6. Add current user to docker group (avoid sudo for docker commands)
 ```
 sudo usermod -aG docker $USER
-newgrp docker  # Apply group change without logout
+newgrp docker
 ```
 #### 7. Verify Docker
 ```
 docker --version
-docker run hello-world  # Should show "Hello from Docker!"
+```
+#### Should show "Hello from Docker!"
+```
+docker run hello-world  
 ```
 
 ---
@@ -461,8 +464,8 @@ Host ceph-node3
 
 #### 4. Test passwordless SSH
 ```
-ssh ceph-node2 "hostname"  # Should return "ceph-node2" without password prompt
-ssh ceph-node3 "hostname"  # Should return "ceph-node3"
+ssh ceph-node2
+ssh ceph-node3
 ```
 
 ---
@@ -472,17 +475,30 @@ ssh ceph-node3 "hostname"  # Should return "ceph-node3"
 
 #### 1. Download cephadm tool
 ```
-curl --silent --remote-name --location https://raw.githubusercontent.com/ceph/ceph/stable/src/cephadm/cephadm
-chmod +x cephadm
-sudo mv cephadm /usr/sbin/cephadm
+sudo apt update
+sudo apt install -y cephadm
 ```
-#### 2. Verify installation
+#### 2. Verify installation path
+
+```
+which cephadm
+```
+> **Expected Output:** /usr/sbin/cephadm
+
+#### 3. Verify installation
 ```
 cephadm version
 ```
-#### 3. Bootstrap the cluster (first MON + MGR)
+> **Note:** Sometimes this might show 'UNKNOWN' on some Ubuntu packages, but check with:
+
 ```
-sudo cephadm bootstrap --mon-ip 192.168.10.11 --ssh-private-key ~/.ssh/ceph_id_rsa
+dpkg -l | grep cephadm
+
+#### 3. Bootstrap the cluster (first MON + MGR)
+#### Initialize the first monitor and manager daemons
+
+```bash
+sudo cephadm bootstrap --mon-ip 192.168.68.180 
 ```
 
 **After successful bootstrap, save these outputs:**
@@ -490,8 +506,33 @@ sudo cephadm bootstrap --mon-ip 192.168.10.11 --ssh-private-key ~/.ssh/ceph_id_r
 - Username: `admin`
 - Password: `[random password shown in output]`
 
+#### 4. Install `ceph-common`
+**Option A: Via cephadm (Recommended)**
+```bash
+sudo cephadm install ceph-common
+```
 
-#### 4. Check cluster status
+**Option B: Via APT (Manual)**
+```bash
+sudo apt update
+sudo apt install -y ceph-common
+```
+> Now you can run `ceph` commands directly without opening the interactive shell.
+
+#### 5. Verify Installation
+Check if the package is installed correctly.
+```bash
+dpkg -l | grep ceph-common
+```
+
+#### 6. Run Commands Directly on Host
+Now you can run Ceph commands without the shell wrapper.
+```bash
+ceph -v
+ceph -s
+```
+#### OR 
+** Without Install ``ceph-common`` Check cluster status
 ```
 sudo cephadm shell -- ceph -s
 ```
