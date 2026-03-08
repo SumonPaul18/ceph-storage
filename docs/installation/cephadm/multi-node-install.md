@@ -509,8 +509,8 @@ ssh-copy-id -f -i /etc/ceph/ceph.pub root@ceph-node3
 ```
 #### 2. Add hosts to cluster
 ```
-sudo cephadm host add --hostname ceph-node2
-sudo cephadm host add --hostname ceph-node3
+sudo ceph orch host add ceph-node1
+sudo ceph orch host add ceph-node2
 ```
 #### 3. Verify hosts are added
 ```
