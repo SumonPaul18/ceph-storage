@@ -18,29 +18,34 @@
 
 Before moving forward, confirm your OSDs are healthy.
 
-```bash
-# Check cluster health
+
+####
+``` Check cluster health
 sudo cephadm shell -- ceph -s
+```
+#### Expected output should show:
+#### - health: HEALTH_OK (or HEALTH_WARN if still balancing)
+#### - osd: X osds: X up, X in
 
-# Expected output should show:
-# - health: HEALTH_OK (or HEALTH_WARN if still balancing)
-# - osd: X osds: X up, X in
-
-# Check OSD tree
+#### Check OSD tree
+```
 sudo cephadm shell -- ceph osd tree
-
-# Example output:
+```
+#### Example output:
+```
 # ID  CLASS  WEIGHT   TYPE NAME       STATUS  REWEIGHT  PRI-AFF
 # -1         0.58800  root default
 # -3         0.19600      host ceph-node1
 #  0    hdd  0.09800          osd.0      up   1.00000  1.00000
 #  1    hdd  0.09800          osd.1      up   1.00000  1.00000
-
-# Check OSD status details
+```
+#### Check OSD status details
+```
 sudo cephadm shell -- ceph osd stat
 sudo cephadm shell -- ceph osd df
-
-# Wait until all PGs show "active+clean"
+```
+#### Wait until all PGs show "active+clean"
+```
 sudo cephadm shell -- ceph pg stat
 ```
 
@@ -73,24 +78,30 @@ sudo cephadm shell -- ceph pg stat
 
 ### 2.3 Step-by-Step Client Setup (Ubuntu Client Example)
 
-```bash
-# On your CLIENT machine (not Ceph cluster nodes)
 
-# 1. Update system
+#### On your CLIENT machine (not Ceph cluster nodes)
+
+#### 1. Update system
+```
 sudo apt update && sudo apt upgrade -y
-
-# 2. Install Ceph client tools
+```
+#### 2. Install Ceph client tools
+```
 sudo apt install -y ceph-common
-
-# 3. Copy ceph.conf & keyring from Ceph Bootstrap node
-# Run From Client:
+```
+#### 3. Copy ceph.conf & keyring from Ceph Bootstrap node
+#### Run From Client:
+```
 scp root@ceph-node1:/etc/ceph/ceph.conf /etc/ceph/
 scp root@ceph-node1:/etc/ceph/ceph.client.admin.keyring /etc/ceph/
-
-# Given right permission
+```
+#### Given right permission
+```
 sudo chmod 644 /etc/ceph/ceph.conf
 sudo chmod 600 /etc/ceph/ceph.client.admin.keyring
-# Then on client:
+```
+#### Then on client:
+```
 sudo mv /tmp/ceph.conf /etc/ceph/ceph.conf
 sudo chmod 644 /etc/ceph/ceph.conf
 ```
@@ -158,54 +169,64 @@ Total PGs = (OSD_Count × 100) / Replication_Size
 
 ### 3.5 Create a Storage Pool (Step-by-Step)
 
-```bash
-# On Ceph Admin Node (Node1)
 
-# 1. Create a replicated pool for RBD (block storage)
+#### On Ceph Admin Node (Node1)
+
+#### 1. Create a replicated pool for RBD (block storage)
+```
 sudo cephadm shell -- ceph osd pool create rbd-pool 128 128 replicated
-# Format: pool_name pg_num pgp_num [replicated|erasure]
+```
+#### Format: pool_name pg_num pgp_num [replicated|erasure]
 
-# 2. Set replication size (default is 3, but be explicit)
+#### 2. Set replication size (default is 3, but be explicit)
+```
 sudo cephadm shell -- ceph osd pool set rbd-pool size 3
 sudo cephadm shell -- ceph osd pool set rbd-pool min_size 2
-
-# 3. Initialize the pool for RBD usage
+```
+#### 3. Initialize the pool for RBD usage
+```
 sudo cephadm shell -- rbd pool init rbd-pool
-
-# 4. Verify pool creation
+```
+#### 4. Verify pool creation
+```
 sudo cephadm shell -- ceph osd pool ls detail
 sudo cephadm shell -- ceph osd pool stats rbd-pool
-
-# 5. Create a client user with access to this pool only
+```
+#### 5. Create a client user with access to this pool only
+```
 sudo cephadm shell -- ceph auth get-or-create client.vm-user mon 'allow r' osd 'allow rwx pool=rbd-pool' -o /etc/ceph/ceph.client.vm-user.keyring
 ```
 
 ### 3.6 Real-World Pool Examples
 
 #### Example 1: Database Pool (High Performance)
-```bash
-# Create pool with more PGs for better distribution
+
+#### Create pool with more PGs for better distribution
+```
 sudo cephadm shell -- ceph osd pool create db-pool 256 256 replicated
 sudo cephadm shell -- ceph osd pool set db-pool size 3
 sudo cephadm shell -- ceph osd pool set db-pool min_size 2
 sudo cephadm shell -- rbd pool init db-pool
-
-# Optional: Enable compression for space saving
+```
+#### Optional: Enable compression for space saving
+```
 sudo cephadm shell -- ceph osd pool set db-pool compression_algorithm zstd
 sudo cephadm shell -- ceph osd pool set db-pool compression_mode passive
 ```
 
 #### Example 2: Backup Pool (Space Efficient)
-```bash
-# Use erasure coding for 50% space savings (more complex, slower writes)
+
+#### Use erasure coding for 50% space savings (more complex, slower writes)
+```
 sudo cephadm shell -- ceph osd erasure-code-profile set backup-profile k=2 m=1
 sudo cephadm shell -- ceph osd pool create backup-pool 128 128 erasure backup-profile
 sudo cephadm shell -- ceph osd pool set backup-pool min_size 2
 ```
 
 #### Example 3: Temporary/Cache Pool
-```bash
-# Lower replication for non-critical data
+
+#### Lower replication for non-critical data
+```
 sudo cephadm shell -- ceph osd pool create cache-pool 64 64 replicated
 sudo cephadm shell -- ceph osd pool set cache-pool size 2
 sudo cephadm shell -- ceph osd pool set cache-pool min_size 1
@@ -256,53 +277,65 @@ sudo cephadm shell -- rbd pool init cache-pool
 
 ### 4.4 Step-by-Step RGW Deployment
 
-```bash
-# On Ceph Admin Node (Node1)
 
-# 1. Create a dedicated pool for RGW (optional but recommended)
+#### On Ceph Admin Node (Node1)
+
+#### 1. Create a dedicated pool for RGW (optional but recommended)
+```
 sudo cephadm shell -- ceph osd pool create .rgw.buckets 128 128 replicated
 sudo cephadm shell -- ceph osd pool set .rgw.buckets size 3
 sudo cephadm shell -- ceph osd pool set .rgw.buckets min_size 2
-
-# 2. Deploy RGW daemon via cephadm orchestrator
-sudo cephadm shell -- ceph orch apply rgw my-realm my-zone --port=8080 --placement="3 ceph-node1 ceph-node2 ceph-node3"
-
-# 3. Wait for RGW to start (check status)
-sudo cephadm shell -- ceph orch ps --daemon_type rgw
-# Should show 3 rgw daemons (one per node) running
-
-# 4. Create an RGW admin user (for managing buckets/users)
-sudo cephadm shell -- radosgw-admin user create --uid="admin" --display-name="RGW Admin" --access-key=RGWADMINKEY123 --secret=RGWADMINSECRET456 --system
-
-# 5. Create a regular user for applications
-sudo cephadm shell -- radosgw-admin user create --uid="app-user" --display-name="Application User" --access-key=APPACCESSKEY789 --secret=APPSECRET012
-
-# 6. Get RGW endpoint URL
-sudo cephadm shell -- ceph orch ls --service_name=rgw.my-realm.my-zone
-# Note the endpoint, usually: http://<node-ip>:8080
 ```
+#### 2. Deploy RGW daemon via cephadm orchestrator
+```
+sudo cephadm shell -- ceph orch apply rgw my-realm my-zone --port=8080 --placement="3 ceph-node1 ceph-node2 ceph-node3"
+```
+#### 3. Wait for RGW to start (check status)
+```
+sudo cephadm shell -- ceph orch ps --daemon_type rgw
+```
+#### Should show 3 rgw daemons (one per node) running
+
+#### 4. Create an RGW admin user (for managing buckets/users)
+```
+sudo cephadm shell -- radosgw-admin user create --uid="admin" --display-name="RGW Admin" --access-key=RGWADMINKEY123 --secret=RGWADMINSECRET456 --system
+```
+
+#### 5. Create a regular user for applications
+```
+sudo cephadm shell -- radosgw-admin user create --uid="app-user" --display-name="Application User" --access-key=APPACCESSKEY789 --secret=APPSECRET012
+```
+#### 6. Get RGW endpoint URL
+```
+sudo cephadm shell -- ceph orch ls --service_name=rgw.my-realm.my-zone
+```
+> Note the endpoint, usually: http://<node-ip>:8080
+
 
 ### 4.5 Real-World RGW Example: Photo Upload Service
 
 **Scenario:** You're building a web app where users upload profile pictures.
 
-```bash
-# 1. Create a bucket for user photos
-# Using AWS CLI (install with: sudo apt install awscli)
+
+#### 1. Create a bucket for user photos
+#### Using AWS CLI (install with: sudo apt install awscli)
+```
 aws --endpoint-url=http://192.168.10.11:8080 \
     s3api create-bucket \
     --bucket user-photos \
     --access-key APPACCESSKEY789 \
     --secret-key APPSECRET012
-
-# 2. Upload a file
+```
+#### 2. Upload a file
+```
 aws --endpoint-url=http://192.168.10.11:8080 \
     s3 cp profile.jpg \
     s3://user-photos/users/user123/profile.jpg \
     --access-key APPACCESSKEY789 \
     --secret-key APPSECRET012
-
-# 3. Make file publicly readable (optional)
+```
+#### 3. Make file publicly readable (optional)
+```
 aws --endpoint-url=http://192.168.10.11:8080 \
     s3api put-object-acl \
     --bucket user-photos \
@@ -310,18 +343,20 @@ aws --endpoint-url=http://192.168.10.11:8080 \
     --acl public-read \
     --access-key APPACCESSKEY789 \
     --secret-key APPSECRET012
-
-# 4. Access via URL:
-# http://192.168.10.11:8080/user-photos/users/user123/profile.jpg
 ```
+#### 4. Access via URL:
+#### http://192.168.10.11:8080/user-photos/users/user123/profile.jpg
+
 
 ### 4.6 RGW Best Practices
 
-```bash
-# Enable SSL/TLS for production (generate cert or use Let's Encrypt)
-sudo cephadm shell -- ceph orch apply rgw my-realm my-zone --port=443 --ssl-cert=/path/to/cert.pem --ssl-key=/path/to/key.pem
 
-# Configure bucket lifecycle (auto-delete old backups)
+#### Enable SSL/TLS for production (generate cert or use Let's Encrypt)
+```
+sudo cephadm shell -- ceph orch apply rgw my-realm my-zone --port=443 --ssl-cert=/path/to/cert.pem --ssl-key=/path/to/key.pem
+```
+#### Configure bucket lifecycle (auto-delete old backups)
+```
 cat > lifecycle.json << 'EOF'
 {
   "Rules": [{
@@ -332,8 +367,9 @@ cat > lifecycle.json << 'EOF'
   }]
 }
 EOF
-
-aws --endpoint-url=http://192.168.10.11:8080 \
+```
+```
+aws` --endpoint-url=http://192.168.10.11:8080 \
     s3api put-bucket-lifecycle-configuration \
     --bucket backups \
     --lifecycle-configuration file://lifecycle.json \
