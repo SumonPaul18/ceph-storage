@@ -493,9 +493,9 @@ cephadm version
 
 ```
 dpkg -l | grep cephadm
-
+```
 #### 3. Bootstrap the cluster (first MON + MGR)
-#### Initialize the first monitor and manager daemons
+**Initialize the first monitor and manager daemons**
 
 ```bash
 sudo cephadm bootstrap --mon-ip 192.168.68.180 
@@ -532,7 +532,7 @@ ceph -v
 ceph -s
 ```
 #### OR 
-** Without Install ``ceph-common`` Check cluster status
+** Without Install ``ceph-common`` Check cluster status**
 ```
 sudo cephadm shell -- ceph -s
 ```
