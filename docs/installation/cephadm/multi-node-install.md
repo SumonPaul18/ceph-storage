@@ -709,47 +709,6 @@ sudo cp /etc/ceph/ceph.client.admin.keyring /backup/
 
 ---
 
-## 6. Best Practices Checklist
-
-### ✅ Pre-Deployment
-- [ ] All nodes have identical Ubuntu 24.04.4 installation
-- [ ] Hostnames and `/etc/hosts` configured correctly
-- [ ] Chrony/NTP synchronized on all nodes (verify with `chronyc sources`)
-- [ ] SSH passwordless access from bootstrap node to all others
-- [ ] Docker installed and working (`docker run hello-world`)
-- [ ] Data disks cleaned with `wipefs -a` and verified empty
-- [ ] Firewall rules allow required ports (or disabled for lab)
-
-### ✅ Deployment
-- [ ] Bootstrap with correct `--mon-ip` (public network IP)
-- [ ] Save dashboard credentials securely
-- [ ] Verify all hosts added: `ceph orch host ls`
-- [ ] Deploy OSDs with appropriate WAL/DB strategy
-- [ ] Wait for cluster to reach `HEALTH_OK` before adding workloads
-
-### ✅ Post-Deployment
-- [ ] Enable dashboard and set strong admin password
-- [ ] Configure monitoring (Prometheus/Grafana) for alerts
-- [ ] Document cluster configuration and recovery procedures
-- [ ] Test failure scenarios: stop one OSD, verify auto-recovery
-- [ ] Schedule regular backups of `/etc/ceph`
-
-### ✅ Ongoing Maintenance
-- [ ] Monitor `ceph -s` daily (or set up alerting)
-- [ ] Check disk health monthly with `smartctl`
-- [ ] Plan capacity: add OSDs before pools reach 80% full
-- [ ] Test recovery procedures quarterly
-- [ ] Keep Ubuntu and Ceph updated (use `cephadm upgrade`)
-
-### 🚫 What to Avoid
-- ❌ Don't use hardware RAID for OSD disks (Ceph handles redundancy)
-- ❌ Don't run OSDs on partitions with other data
-- ❌ Don't ignore `HEALTH_WARN` messages (they become `HEALTH_ERR`)
-- ❌ Don't change network configuration after deployment without planning
-- ❌ Don't use even number of MONs (risk of split brain)
-
----
-
 ### Final Verification
 
 After completing all steps, run this final check:
