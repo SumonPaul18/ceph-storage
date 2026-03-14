@@ -7,7 +7,7 @@
 1. [Architecture & Prerequisites](#1-architecture--prerequisites)
 2. [Core Components & Terminology](#2-core-components--terminology)
 3. [VM/Hardware Specifications](#3-vmhardware-specifications)
-4. [Step-by-Step Installation Guide](#4-step-by-step-installation-guide)
+4. [Step-by-Step Installation Guide](#4-step-by-step-installation-guide-a-to-z)
 5. [Production Maintenance & Troubleshooting](#5-production-maintenance--troubleshooting)
 6. [Best Practices Checklist](#6-best-practices-checklist)
 
