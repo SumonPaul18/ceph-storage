@@ -24,8 +24,8 @@ sudo cephadm shell -- ceph -s
 ```
 #### Expected output should show:
 ```
-#### - health: HEALTH_OK (or HEALTH_WARN if still balancing)
-#### - osd: X osds: X up, X in
+health: HEALTH_OK (or HEALTH_WARN if still balancing)
+osd: X osds: X up, X in
 ```
 #### Check OSD tree
 ```
