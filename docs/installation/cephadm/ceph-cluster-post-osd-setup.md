@@ -18,15 +18,15 @@
 
 Before moving forward, confirm your OSDs are healthy.
 
-
-####
-``` Check cluster health
+#### Check cluster health
+``` 
 sudo cephadm shell -- ceph -s
 ```
 #### Expected output should show:
+```
 #### - health: HEALTH_OK (or HEALTH_WARN if still balancing)
 #### - osd: X osds: X up, X in
-
+```
 #### Check OSD tree
 ```
 sudo cephadm shell -- ceph osd tree
