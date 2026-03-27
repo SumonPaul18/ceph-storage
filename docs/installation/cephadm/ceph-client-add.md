@@ -31,51 +31,60 @@
 
 ### 1.2 Update Client Machine
 
-```bash
-# Log into your CLIENT machine (not Ceph cluster nodes)
-# This is a NEW machine that will access Ceph storage
 
-# Update package list
+#### Log into your CLIENT machine (not Ceph cluster nodes)
+#### This is a NEW machine that will access Ceph storage
+
+#### Update package list
+```
 sudo apt update
-
-# Upgrade existing packages
+```
+#### Upgrade existing packages
+```
 sudo apt upgrade -y
-
-# Install basic tools
+```
+#### Install basic tools
+```
 sudo apt install -y curl wget net-tools dnsutils
 ```
 
 ### 1.3 Configure Network
 
-```bash
-# Check network connectivity
-ip addr show
 
-# Test ping to Ceph cluster nodes
+#### Check network connectivity
+```
+ip addr show
+```
+#### Test ping to Ceph cluster nodes
+```
 ping -c 3 192.168.10.11
 ping -c 3 192.168.10.12
 ping -c 3 192.168.10.13
-
-# All should respond. If not, check network/firewall
 ```
+#### All should respond. If not, check network/firewall
+
 
 ### 1.4 Configure Time Synchronization (Important!)
 
-```bash
-# Install chrony for time sync
-sudo apt install -y chrony
 
-# Enable and start the service
-sudo systemctl enable --now chrony
-
-# Verify time is synced
-chronyc sources -v
-
-# Check current time
-date
-
-# Time must match Ceph cluster nodes (within 100ms)
+#### Install chrony for time sync
 ```
+sudo apt install -y chrony
+```
+#### Enable and start the service
+```
+sudo systemctl enable --now chrony
+```
+#### Verify time is synced
+```
+chronyc sources -v
+```
+#### Check current time
+```
+date
+```
+#### Time must match Ceph cluster nodes (within 100ms)
+
 
 > ⚠️ **Warning:** If client time differs from cluster time by more than 100ms, authentication will fail!
 
@@ -85,23 +94,27 @@ date
 
 ### 2.1 Install Ceph Common Package
 
-```bash
-# Install Ceph client tools on CLIENT machine
-sudo apt install -y ceph-common
 
-# Verify installation
-ceph --version
-
-# Expected output: ceph version 18.x.x or 19.x.x
+#### Install Ceph client tools on CLIENT machine
 ```
+sudo apt install -y ceph-common
+```
+#### Verify installation
+```
+ceph --version
+```
+#### Expected output: ceph version 18.x.x or 19.x.x
+
 
 ### 2.2 Create Ceph Configuration Directory
 
-```bash
-# Create directory for Ceph config files
-sudo mkdir -p /etc/ceph
 
-# Set proper permissions
+#### Create directory for Ceph config files
+```
+sudo mkdir -p /etc/ceph
+```
+#### Set proper permissions
+```
 sudo chmod 755 /etc/ceph
 ```
 
@@ -113,12 +126,14 @@ sudo chmod 755 /etc/ceph
 
 **On your CEPH ADMIN NODE (Node1), run:**
 
-```bash
-# View the ceph.conf file
-cat /etc/ceph/ceph.conf
 
-# Copy it to your client machine
-# Replace 'client-ip' with your actual client machine IP
+#### View the ceph.conf file
+```
+cat /etc/ceph/ceph.conf
+```
+#### Copy it to your client machine
+#### Replace 'client-ip' with your actual client machine IP
+```
 scp /etc/ceph/ceph.conf user@client-ip:/tmp/ceph.conf
 ```
 
@@ -126,14 +141,17 @@ scp /etc/ceph/ceph.conf user@client-ip:/tmp/ceph.conf
 
 **On your CLIENT machine, run:**
 
-```bash
-# Move the config file to correct location
+
+#### Move the config file to correct location
+```
 sudo mv /tmp/ceph.conf /etc/ceph/ceph.conf
-
-# Set proper permissions
+```
+#### Set proper permissions
+```
 sudo chmod 644 /etc/ceph/ceph.conf
-
-# Verify the file
+```
+#### Verify the file
+```
 cat /etc/ceph/ceph.conf
 ```
 
@@ -171,24 +189,27 @@ rbd_cache_writethrough_until_flush = true
 
 **On your CEPH ADMIN NODE (Node1), run:**
 
-```bash
-# Create a user specifically for RBD block storage
-# This user can ONLY access the rbd-pool, nothing else
+
+#### Create a user specifically for RBD block storage
+#### This user can ONLY access the rbd-pool, nothing else
+```
 sudo cephadm shell -- ceph auth get-or-create client.rbd-user \
   mon 'allow r' \
   osd 'allow rwx pool=rbd-pool' \
   -o /etc/ceph/ceph.client.rbd-user.keyring
-
-# Verify the user was created
-sudo cephadm shell -- ceph auth list
-
-# You should see 'client.rbd-user' in the list
 ```
+#### Verify the user was created
+```
+ceph auth list
+```
+#### You should see 'client.rbd-user' in the list
+
 
 ### 4.3 Create CephFS Client User (On Ceph Admin Node)
 
-```bash
-# Create a user specifically for CephFS file storage
+
+#### Create a user specifically for CephFS file storage
+```
 sudo cephadm shell -- ceph auth get-or-create client.cephfs-user \
   mon 'allow r' \
   mds 'allow r, allow rw path=/' \
@@ -200,34 +221,41 @@ sudo cephadm shell -- ceph auth get-or-create client.cephfs-user \
 
 **On your CEPH ADMIN NODE (Node1), run:**
 
-```bash
-# Copy RBD user keyring to client
+
+#### Copy RBD user keyring to client
+```
 scp /etc/ceph/ceph.client.rbd-user.keyring user@client-ip:/tmp/ceph.client.rbd-user.keyring
-
-# Copy CephFS user keyring to client
+```
+#### Copy CephFS user keyring to client
+```
 scp /etc/ceph/ceph.client.cephfs-user.keyring user@client-ip:/tmp/ceph.client.cephfs-user.keyring
-
-# Also copy admin keyring for testing (optional, remove after testing)
+```
+#### Also copy admin keyring for testing (optional, remove after testing)
+```
 scp /etc/ceph/ceph.client.admin.keyring user@client-ip:/tmp/ceph.client.admin.keyring
 ```
 
 **On your CLIENT machine, run:**
 
-```bash
-# Move keyrings to correct location
+
+#### Move keyrings to correct location
+```
 sudo mv /tmp/ceph.client.rbd-user.keyring /etc/ceph/ceph.client.rbd-user.keyring
 sudo mv /tmp/ceph.client.cephfs-user.keyring /etc/ceph/ceph.client.cephfs-user.keyring
 sudo mv /tmp/ceph.client.admin.keyring /etc/ceph/ceph.client.admin.keyring
-
-# Set secure permissions (VERY IMPORTANT!)
+```
+#### Set secure permissions (VERY IMPORTANT!)
+```
 sudo chmod 600 /etc/ceph/ceph.client.rbd-user.keyring
 sudo chmod 600 /etc/ceph/ceph.client.cephfs-user.keyring
 sudo chmod 600 /etc/ceph/ceph.client.admin.keyring
-
-# Set ownership to root
+```
+#### Set ownership to root
+```
 sudo chown root:root /etc/ceph/ceph.client.*.keyring
-
-# Verify permissions
+```
+#### Verify permissions
+```
 ls -la /etc/ceph/
 ```
 
@@ -239,8 +267,9 @@ ls -la /etc/ceph/
 
 ### 5.1 Test Connection with RBD User
 
-```bash
-# Test cluster status using the rbd-user credentials
+
+#### Test cluster status using the rbd-user credentials
+```
 ceph --name client.rbd-user --keyring /etc/ceph/ceph.client.rbd-user.keyring -s
 ```
 
@@ -258,8 +287,9 @@ ceph --name client.rbd-user --keyring /etc/ceph/ceph.client.rbd-user.keyring -s
 
 ### 5.2 Test Connection with Admin User
 
-```bash
-# Test with admin credentials (should show more details)
+
+#### Test with admin credentials (should show more details)
+```
 ceph --name client.admin --keyring /etc/ceph/ceph.client.admin.keyring -s
 ```
 
