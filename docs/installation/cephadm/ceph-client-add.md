@@ -6,7 +6,7 @@
 ## 📋 Table of Contents
 1. [Part 1: Connect Linux Client to Ceph Cluster](#part-1-connect-linux-client-to-ceph-cluster)
 2. [Part 2: RBD Image Mapping & Configuration](#part-2-rbd-image-mapping--configuration)
-3. [Part 3: Connect RGW & CephFS Services](#7-connect-rgw--cephfs-services)
+3. [Part 3: Connect RGW & CephFS Services](#part-3-connect-rgw--cephfs-services)
 
 ---
 
