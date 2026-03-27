@@ -499,14 +499,16 @@ sudo cephadm shell -- ceph osd pool set-quota rbd-pool max_bytes 1099511627776
 
 ### ৫.৪ QoS (Quality of Service) কনফিগারেশন
 
-```bash
-# RBD ইমেজে IOPS লিমিট সেট করুন
+
+#### RBD ইমেজে IOPS লিমিট সেট করুন
+```
 sudo rbd config set rbd-pool/vm-disk-01 qos_read_iops_limit 1000
 sudo rbd config set rbd-pool/vm-disk-01 qos_write_iops_limit 500
 sudo rbd config set rbd-pool/vm-disk-01 qos_read_bps_limit 104857600
 sudo rbd config set rbd-pool/vm-disk-01 qos_write_bps_limit 52428800
-
-# QoS সেটিংস ভেরিফাই করুন
+```
+#### QoS সেটিংস ভেরিফাই করুন
+```
 sudo rbd config get rbd-pool/vm-disk-01
 ```
 
@@ -516,11 +518,13 @@ sudo rbd config get rbd-pool/vm-disk-01
 
 ### ৬.১ মাল্টিপথ কনফিগারেশন
 
-```bash
-# ১. multipath-tools ইনস্টল করুন
-sudo apt install -y multipath-tools
 
-# ২. multipath কনফিগারেশন এডিট করুন
+#### ১. multipath-tools ইনস্টল করুন
+```
+sudo apt install -y multipath-tools
+```
+#### ২. multipath কনফিগারেশন এডিট করুন
+```
 sudo nano /etc/multipath.conf
 ```
 
@@ -548,19 +552,22 @@ devices {
 }
 ```
 
-```bash
-# ৩. multipath সার্ভিস রিস্টার্ট করুন
+
+#### ৩. multipath সার্ভিস রিস্টার্ট করুন
+```
 sudo systemctl restart multipathd
 sudo systemctl enable multipathd
-
-# ৪. multipath স্ট্যাটাস চেক করুন
+```
+#### ৪. multipath স্ট্যাটাস চেক করুন
+```
 sudo multipath -ll
 ```
 
 ### ৬.২ মাল্টিপল MON কনফিগারেশন
 
-```bash
-# ceph.conf এ একাধিক MON হোস্ট অ্যাড করুন
+
+#### ceph.conf এ একাধিক MON হোস্ট অ্যাড করুন
+```
 sudo nano /etc/ceph/ceph.conf
 ```
 
@@ -573,12 +580,14 @@ mon_host = 192.168.10.11,192.168.10.12,192.168.10.13
 
 ### ৬.৩ ওয়াচডগ টাইমার কনফিগারেশন
 
-```bash
-# সিস্টেমড ওয়াচডগ এনেবল করুন
+
+#### সিস্টেমড ওয়াচডগ এনেবল করুন
+```
 sudo systemctl enable systemd-watchdog
 sudo systemctl start systemd-watchdog
-
-# RBD ওয়াচডগ টাইমআউট সেট করুন
+```
+#### RBD ওয়াচডগ টাইমআউট সেট করুন
+```
 sudo rbd config set rbd-pool/vm-disk-01 rbd_blacklist_on_break_lock true
 sudo rbd config set rbd-pool/vm-disk-01 rbd_watch_timeout_seconds 30
 ```
@@ -589,17 +598,21 @@ sudo rbd config set rbd-pool/vm-disk-01 rbd_watch_timeout_seconds 30
 
 ### ৭.১ RBD স্ট্যাটাস মনিটরিং
 
-```bash
-# ১. ম্যাপ করা ইমেজ লিস্ট
+
+#### ১. ম্যাপ করা ইমেজ লিস্ট
+```
 rbd showmapped
-
-# ২. ডিটেইলড ইনফরমেশন
+```
+#### ২. ডিটেইলড ইনফরমেশন
+```
 rbd showmapped --format json
-
-# ৩. পারফরমেন্স স্ট্যাটাস
+```
+#### ৩. পারফরমেন্স স্ট্যাটাস
+```
 sudo rbd status rbd-pool/vm-disk-01
-
-# ৪. লক স্ট্যাটাস চেক করুন
+```
+#### ৪. লক স্ট্যাটাস চেক করুন
+```
 sudo rbd lock list rbd-pool/vm-disk-01
 ```
 
@@ -615,24 +628,30 @@ sudo rbd lock list rbd-pool/vm-disk-01
 
 ### ৭.৩ ট্রাবলশুটিং কমান্ড
 
-```bash
-# ১. কানেক্টিভিটি ডিবাগ
-ceph -s --conf /etc/ceph/ceph.conf
 
-# ২. লগ চেক করুন
+#### ১. কানেক্টিভিটি ডিবাগ
+```
+ceph -s --conf /etc/ceph/ceph.conf
+```
+#### ২. লগ চেক করুন
+```
 sudo journalctl -u rbd-map.service -f
 sudo dmesg | grep rbd
-
-# ৩. ইমেজ আনম্যাপ করুন (ফোর্স)
+```
+#### ৩. ইমেজ আনম্যাপ করুন (ফোর্স)
+```
 sudo rbd unmap /dev/rbd0 -o force
-
-# ৪. লক রিলিজ করুন
+```
+#### ৪. লক রিলিজ করুন
+```
 sudo rbd lock release rbd-pool/vm-disk-01 <lock-id> --id admin
-
-# ৫. ফাইলসিস্টেম চেক করুন
+```
+#### ৫. ফাইলসিস্টেম চেক করুন
+```
 sudo fsck.ext4 -f /dev/rbd0
-
-# ৬. পারফরমেন্স ডিবাগ
+```
+#### ৬. পারফরমেন্স ডিবাগ
+```
 sudo iostat -x 1
 sudo iotop -o
 ```
@@ -680,75 +699,34 @@ echo "*/5 * * * * root /usr/local/bin/rbd-health-check.sh" | sudo tee -a /etc/cr
 
 ---
 
-## 8️⃣ বেস্ট প্র্যাকটিস চেকলিস্ট
-
-### ✅ ডিপ্লয়মেন্ট চেকলিস্ট
-
-```
-□ Ceph ক্লায়েন্ট প্যাকেজ ইনস্টল করা হয়েছে
-□ /etc/ceph/ceph.conf কনফিগার করা হয়েছে
-□ কী রিং ফাইল পারমিশন সঠিক (600)
-□ নেটওয়ার্ক কানেক্টিভিটি ভেরিফাইড
-□ RBD ইমেজ সফলভাবে ম্যাপ করা হয়েছে
-□ ফাইলসিস্টেম তৈরি ও মাউন্ট করা হয়েছে
-□ fstab এন্ট্রি অ্যাড ও টেস্ট করা হয়েছে
-□ অটো-ম্যাপ সার্ভিস কনফিগার করা হয়েছে
-```
-
-### ✅ সিকিউরিটি চেকলিস্ট
-
-```
-□ রিস্ট্রিক্টেড ক্লায়েন্ট কী ব্যবহার করা হয়েছে
-□ কী রিং ফাইল পারমিশন সুরক্ষিত
-□ ফায়ারওয়াল রুলস কনফিগার করা হয়েছে
-□ এনক্রিপশন এনেবল করা হয়েছে (যদি প্রয়োজন)
-□ অপ্রয়োজনীয় ক্লায়েন্ট অ্যাক্সেস রিমুভ করা হয়েছে
-```
-
-### ✅ পারফরমেন্স চেকলিস্ট
-
-```
-□ RBD ক্যাশিং এনেবল করা হয়েছে
-□ নেটওয়ার্ক MTU অপ্টিমাইজড (জাম্বো ফ্রেম)
-□ I/O শিডিউলার সেট করা হয়েছে (deadline/noop)
-□ মাল্টিপথ কনফিগার করা হয়েছে
-□ QoS লিমিট সেট করা হয়েছে
-```
-
-### ✅ মনিটরিং চেকলিস্ট
-
-```
-□ অটোমেটেড হেলথ চেক স্ক্রিপ্ট রানিং
-□ লগ মনিটরিং কনফিগার করা হয়েছে
-□ অ্যালার্ট থ্রেশহোল্ড সেট করা হয়েছে
-□ ব্যাকআপ স্ট্র্যাটেজি ইমপ্লিমেন্ট করা হয়েছে
-□ ডিজাস্টার রিকভারি প্ল্যান ডকুমেন্টেড
-```
-
----
-
 ## 🎯 ফাইনাল ভেরিফিকেশন কমান্ড
 
-```bash
-# সবকিছু ঠিক আছে কিনা চেক করুন
 
-# ১. RBD ম্যাপ স্ট্যাটাস
+### সবকিছু ঠিক আছে কিনা চেক করুন
+
+#### ১. RBD ম্যাপ স্ট্যাটাস
+```
 rbd showmapped
-
-# ২. মাউন্ট স্ট্যাটাস
+```
+#### ২. মাউন্ট স্ট্যাটাস
+```
 df -h | grep rbd-storage
-
-# ৩. ক্লাস্টার কানেক্টিভিটি
+```
+#### ৩. ক্লাস্টার কানেক্টিভিটি
+```
 ceph -s
-
-# ৪. ডেটা রাইট/রিড টেস্ট
+```
+#### ৪. ডেটা রাইট/রিড টেস্ট
+```
 echo "Final Test - $(date)" | sudo tee /mnt/rbd-storage/final-test.txt
 cat /mnt/rbd-storage/final-test.txt
-
-# ৫. সার্ভিস স্ট্যাটাস
+```
+#### ৫. সার্ভিস স্ট্যাটাস
+```
 sudo systemctl status rbd-map.service
-
-# ✅ সবকিছু ঠিক থাকলে:
+```
+#### ✅ সবকিছু ঠিক থাকলে:
+```
 echo "🎉 RBD Client Setup Complete!"
 ```
 
