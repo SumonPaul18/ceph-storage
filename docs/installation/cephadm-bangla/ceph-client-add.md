@@ -1,7 +1,7 @@
 # 🖥️ লিনাক্স ক্লায়েন্টে RBD ইমেজ ম্যাপিং - সম্পূর্ণ গাইড
 ## ধাপে ধাপে সেটআপ, অতিরিক্ত কনফিগারেশন ও ট্রাবলশুটিং
 
-সুমোন ভাই, Ceph ক্লাস্টার সেটআপ করার পর ক্লায়েন্ট মেশিন থেকে RBD ইমেজ ব্যবহার করা মূল লক্ষ্য। নিচে **লিনাক্স ক্লায়েন্টে RBD ইমেজ ম্যাপিং**-এর সম্পূর্ণ গাইডলাইন দেওয়া হলো।
+Ceph ক্লাস্টার সেটআপ করার পর ক্লায়েন্ট মেশিন থেকে RBD ইমেজ ব্যবহার করা মূল লক্ষ্য। নিচে **লিনাক্স ক্লায়েন্টে RBD ইমেজ ম্যাপিং**-এর সম্পূর্ণ গাইডলাইন দেওয়া হলো।
 
 ---
 
@@ -18,36 +18,40 @@
 
 ### ১.২ প্রয়োজনীয় প্যাকেজ ইনস্টলেশন
 
-```bash
-# ১. সিস্টেম আপডেট করুন
+#### ১. সিস্টেম আপডেট করুন
+```
 sudo apt update && sudo apt upgrade -y
-
-# ২. Ceph ক্লায়েন্ট টুল ইনস্টল করুন
+```
+#### ২. Ceph ক্লায়েন্ট টুল ইনস্টল করুন
+```
 sudo apt install -y ceph-common ceph-fuse rbd-nbd
-
-# ৩. অতিরিক্ত টুলস (অপশনাল কিন্তু রিকমেন্ডেড)
+```
+#### ৩. অতিরিক্ত টুলস (অপশনাল কিন্তু রিকমেন্ডেড)
+```
 sudo apt install -y xfsprogs ext4-utils nfs-common
-
-# ৪. ইনস্টলেশন ভেরিফাই করুন
+```
+#### ৪. ইনস্টলেশন ভেরিফাই করুন
+```
 rbd --version
 ceph --version
 ```
 
 ### ১.৩ নেটওয়ার্ক কানেক্টিভিটি চেক
 
-```bash
-# Ceph ক্লাস্টার নোডগুলোর সাথে কানেক্টিভিটি চেক করুন
+
+#### Ceph ক্লাস্টার নোডগুলোর সাথে কানেক্টিভিটি চেক করুন
+```
 ping -c 3 ceph-node1
 ping -c 3 ceph-node2
 ping -c 3 ceph-node3
-
-# প্রয়োজনীয় পোর্ট খোলা আছে কিনা চেক করুন
+```
+#### প্রয়োজনীয় পোর্ট খোলা আছে কিনা চেক করুন
+```
 nc -zv ceph-node1 6789
 nc -zv ceph-node1 3300
 nc -zv ceph-node1 6800
-
-# ✅ সফল হলে: "succeeded!" মেসেজ দেখাবে
 ```
+#### ✅ সফল হলে: "succeeded!" মেসেজ দেখাবে
 
 ---
 
@@ -55,8 +59,9 @@ nc -zv ceph-node1 6800
 
 ### ২.১ Ceph ডিরেক্টরি তৈরি করুন
 
-```bash
-# Ceph কনফিগারেশন ডিরেক্টরি তৈরি করুন
+
+#### Ceph কনফিগারেশন ডিরেক্টরি তৈরি করুন
+```
 sudo mkdir -p /etc/ceph
 sudo chmod 755 /etc/ceph
 ```
@@ -65,12 +70,14 @@ sudo chmod 755 /etc/ceph
 
 **অপশন A: SCP দিয়ে কপি করুন (রিকমেন্ডেড)**
 
-```bash
-# Ceph ক্লাস্টার থেকে কনফিগারেশন ফাইল কপি করুন
+
+#### Ceph ক্লাস্টার থেকে কনফিগারেশন ফাইল কপি করুন
+```
 sudo scp root@ceph-node1:/etc/ceph/ceph.conf /etc/ceph/
 sudo scp root@ceph-node1:/etc/ceph/ceph.client.admin.keyring /etc/ceph/
-
-# পারমিশন ঠিক করুন
+```
+#### পারমিশন ঠিক করুন
+```
 sudo chmod 644 /etc/ceph/ceph.conf
 sudo chmod 600 /etc/ceph/ceph.client.admin.keyring
 sudo chown root:root /etc/ceph/ceph.conf
@@ -79,8 +86,9 @@ sudo chown root:root /etc/ceph/ceph.client.admin.keyring
 
 **অপশন B: ম্যানুয়ালি তৈরি করুন**
 
-```bash
-# ceph.conf ফাইল ম্যানুয়ালি তৈরি করুন
+
+#### ceph.conf ফাইল ম্যানুয়ালি তৈরি করুন
+```
 sudo nano /etc/ceph/ceph.conf
 ```
 
@@ -100,11 +108,14 @@ keyring = /etc/ceph/ceph.client.admin.keyring
 
 ### ২.৩ ক্লায়েন্ট কী রিং ভেরিফাই করুন
 
-```bash
-# কী রিং ফাইল চেক করুন
-sudo cat /etc/ceph/ceph.client.admin.keyring
 
-# আউটপুট এমন হওয়া উচিত:
+#### কী রিং ফাইল চেক করুন
+```
+sudo cat /etc/ceph/ceph.client.admin.keyring
+```
+
+#### আউটপুট এমন হওয়া উচিত:
+```
 # [client.admin]
 #     key = AQBxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==
 #     caps mds = "allow *"
@@ -115,13 +126,14 @@ sudo cat /etc/ceph/ceph.client.admin.keyring
 
 ### ২.৪ ক্লাস্টার কানেক্টিভিটি টেস্ট করুন
 
-```bash
-# Ceph ক্লাস্টার স্ট্যাটাস চেক করুন
-ceph -s
 
-# ✅ সফল হলে ক্লাস্টার হেলথ দেখাবে
-# ❌ ফেল হলে: "Error EACCES: authentication error" বা কানেকশন এরর
+#### Ceph ক্লাস্টার স্ট্যাটাস চেক করুন
 ```
+ceph -s
+```
+#### ✅ সফল হলে ক্লাস্টার হেলথ দেখাবে
+#### ❌ ফেল হলে: "Error EACCES: authentication error" বা কানেকশন এরর
+
 
 ---
 
@@ -129,14 +141,17 @@ ceph -s
 
 ### ৩.১ বিদ্যমান RBD ইমেজ লিস্ট করুন
 
-```bash
-# সব পুলের তালিকা দেখুন
+
+#### সব পুলের তালিকা দেখুন
+```
 rbd pool ls
-
-# নির্দিষ্ট পুলের ইমেজ লিস্ট দেখুন
+```
+#### নির্দিষ্ট পুলের ইমেজ লিস্ট দেখুন
+```
 rbd ls rbd-pool
-
-# ইমেজের বিস্তারিত তথ্য দেখুন
+```
+#### ইমেজের বিস্তারিত তথ্য দেখুন
+```
 rbd info rbd-pool/vm-disk-01
 ```
 
@@ -159,23 +174,28 @@ rbd image 'vm-disk-01':
 
 ### ৩.২ RBD ইমেজ ম্যাপ করুন (Kernel Module)
 
-```bash
-# ১. RBD কার্নেল মডিউল লোড করুন
+
+#### ১. RBD কার্নেল মডিউল লোড করুন
+```
 sudo modprobe rbd
-
-# ২. ইমেজ ম্যাপ করুন
+```
+#### ২. ইমেজ ম্যাপ করুন
+```
 sudo rbd map rbd-pool/vm-disk-01 --id admin
-
-# অথবা পূর্ণ সিনট্যাক্স:
+```
+#### অথবা পূর্ণ সিনট্যাক্স:
+```
 sudo rbd map rbd-pool/vm-disk-01 \
   --id admin \
   --keyring /etc/ceph/ceph.client.admin.keyring \
   --conf /etc/ceph/ceph.conf
-
-# ৩. ম্যাপ করা ডিভাইস চেক করুন
+```
+#### ৩. ম্যাপ করা ডিভাইস চেক করুন
+```
 rbd showmapped
-
-# অথবা
+```
+#### অথবা
+```
 lsblk | grep rbd
 ```
 
@@ -187,13 +207,15 @@ id  pool       image          snap device
 
 ### ৩.৩ RBD ইমেজ ম্যাপ করুন (NBD - Network Block Device)
 
-```bash
-# NBD মডিউল লোড করুন
+
+#### NBD মডিউল লোড করুন
+```
 sudo modprobe nbd max_part=16
-
-# NBD দিয়ে ম্যাপ করুন (অল্টারনেটিভ পদ্ধতি)
+```
+#### NBD দিয়ে ম্যাপ করুন (অল্টারনেটিভ পদ্ধতি)
+```
 sudo rbd-nbd map rbd-pool/vm-disk-01 --id admin
-
+```
 # ডিভাইস চেক করুন
 lsblk | grep nbd
 # আউটপুট: /dev/nbd0
