@@ -373,7 +373,7 @@ sudo nano /etc/hosts
 
 ## Step 1: Create RBD Image on Ceph Cluster
 
-### 1.1 What is an RBD Image?
+#### 1.1 What is an RBD Image?
 
 > An **RBD Image** is a virtual block device stored in your Ceph cluster. You can think of it as a "virtual hard disk" that lives on the cluster instead of inside your server.
 
@@ -383,7 +383,7 @@ sudo nano /etc/hosts
 <details>
 <summary> If not Create RBD Image </summary>
 
-### 1.2 Create RBD Image (On Ceph Admin Node OR Client)
+#### 1.2 Create RBD Image (On Ceph Admin Node OR Client)
 
 ```bash
 # You can run this from client machine if you have admin credentials
@@ -400,7 +400,7 @@ ceph --name client.admin --keyring /etc/ceph/ceph.client.admin.keyring \
 # Expected output: vm-disk-1
 ```
 
-### 1.3 RBD Image Options Explained
+#### RBD Image Options Explained
 
 | Option | Value | Why |
 |--------|-------|-----|
@@ -408,7 +408,7 @@ ceph --name client.admin --keyring /etc/ceph/ceph.client.admin.keyring \
 | `--pool` | rbd-pool | Which storage pool to use |
 | `--image-format` | 2 | Use format 2 (supports features like snapshots) |
 
-### 1.4 Enable Advanced Features (Optional but Recommended)
+#### Enable Advanced Features (Optional but Recommended)
 
 ```bash
 # Enable features for better performance and functionality
@@ -430,40 +430,64 @@ ceph --name client.admin --keyring /etc/ceph/ceph.client.admin.keyring \
 | `deep-flatten` | Allows snapshot deletion without copying data | Saves space |
 
 </details>
----
 
-## Step 2: Map RBD Image to Client Machine
 
-### 2.1 Load RBD Kernel Module
+### 1.3 Mapping the RBD Image to the Client
 
-```bash
-# Check if RBD module is loaded
+"Mapping" makes the remote Ceph RBD image appear as a local block device (like `/dev/rbd0`) on your client Linux machine.
+
+#### Check if RBD module is loaded
+```
 lsmod | grep rbd
-
-# If nothing shows, load the module
+```
+#### If nothing shows, load the module
+```
 sudo modprobe rbd
-
-# Make it load automatically on boot
+```
+#### Make it load automatically on boot
+```
 echo "rbd" | sudo tee /etc/modules-load.d/rbd.conf
 ```
 
-### 2.2 Map the RBD Image
-
+#### Map the Image
+Run the map command.
 ```bash
-# Map the RBD image to a device on client
-sudo rbd map vm-disk-1 --pool rbd-pool --name client.rbd-user
-
-# Expected output: /dev/rbd0
-
-# Verify the mapping
-rbd showmapped
-
-# Expected output:
-# id  pool       namespace  image      snap  device
-# 0   rbd-pool   -          vm-disk-1  -     /dev/rbd0
+sudo rbd map -p <pool-name> <image-name>
+```
+*Example:*
+```bash
+sudo rbd map -p rbd my-first-image
 ```
 
-### 2.3 Understanding the Device
+*Successful Output:*
+```text
+/dev/rbd0
+```
+*Note:* If you map another image, it will become `/dev/rbd1`, and so on.
+
+### Verify the Mapping
+Check if the device is recognized by the kernel.
+```bash
+lsblk | grep rbd
+```
+*Output:*
+```text
+rbd0     252:0    0   10G  0 disk
+```
+You can also see active maps using:
+```bash
+rbd showmapped
+```
+*Output Table:*
+| pool | image | snap | device |
+| :--- | :--- | :--- | :--- |
+| rbd | my-first-image | - | /dev/rbd0 |
+
+> **Important:** If the image is **new** and never formatted, `/dev/rbd0` exists but contains no filesystem yet. Proceed to Phase 5. If the image **already has data** and a filesystem, skip to Step 6.2 (Mounting).
+
+---
+
+### 2.2 Understanding the Device
 
 ```bash
 # Check the device details
@@ -484,38 +508,48 @@ sudo fdisk -l /dev/rbd0
 
 ### 3.1 Create Filesystem on RBD Device
 
+### Scenario A: New Image (Formatting Required)
+If this is a brand new RBD image, you must format it with a filesystem (ext4 or xfs) before mounting.
+
+**Warning:** This erases all data on the device. Only do this on new images.
+
+#### Format with ext4 (Recommended for simplicity)
 ```bash
-# Create ext4 filesystem (most common for Linux)
 sudo mkfs.ext4 /dev/rbd0
-
-# Expected output will show filesystem creation progress
-# Creating filesystem with 13107200 4k blocks and 3276800 inodes
 ```
 
-> ⚠️ **Warning:** Only format once! Formatting again will erase all data.
-
-### 3.2 Create Mount Point
-
+#### Format with xfs (Recommended for large files/performance)
 ```bash
-# Create directory to mount the storage
-sudo mkdir -p /mnt/ceph-storage
-
-# Set proper permissions
-sudo chmod 755 /mnt/ceph-storage
+sudo mkfs.xfs /dev/rbd0
 ```
 
-### 3.3 Mount the RBD Device
+### Scenario B: Existing Image (Skip Formatting)
+If the image was previously used and already has a filesystem, **DO NOT RUN MKFS**. Jump directly to mounting.
 
+### Create a Mount Point
+Create a directory where you want to access the storage.
 ```bash
-# Mount the device
-sudo mount /dev/rbd0 /mnt/ceph-storage
+sudo mkdir -p /mnt/ceph-data
+```
+#### Set proper permissions
+```
+sudo chmod 755 /mnt/ceph-data
+```
 
-# Verify mount
-df -h /mnt/ceph-storage
+### Mount the Device
+Mount the mapped device to the directory.
+```bash
+sudo mount /dev/rbd0 /mnt/ceph-data
+```
 
-# Expected output:
-# Filesystem      Size  Used Avail Use% Mounted on
-# /dev/rbd0        50G   24K   47G   1% /mnt/ceph-storage
+### Verify Mount
+Check if it is mounted successfully.
+```bash
+df -h | grep rbd
+```
+*Output:*
+```text
+/dev/rbd0      10G  100M  9.4G   1% /mnt/ceph-data
 ```
 
 ### 3.4 Test Read/Write Operations
@@ -603,9 +637,86 @@ ls /mnt/ceph-storage/
 
 ---
 
-## Step 5: RBD Snapshot and Clone (Backup & Testing)
+## 5. Unmounting & Cleanup
 
-### 5.1 Create a Snapshot
+When you are done or need to perform maintenance, follow the correct order to prevent data corruption.
+
+####  Unmount the Filesystem
+Always unmount first.
+```bash
+sudo umount /mnt/ceph-data
+```
+*Check:* `df -h` should no longer show `/dev/rbd0`.
+
+#### Unmap the RBD Device
+Disconnect the block device from the client.
+```bash
+sudo rbd unmap /dev/rbd0
+```
+*Alternatively, if you don't know the device name:*
+```bash
+sudo rbd unmap -p <pool-name> <image-name>
+```
+
+#### Verify Unmap
+```bash
+rbd showmapped
+```
+*Output:* Should be empty or not list the specific image anymore.
+
+---
+
+## 6. Troubleshooting Common Issues
+
+#### Issue 1: `rbd: map failed: (2) No such file or directory`
+*   **Cause:** The `rbd` kernel module is not loaded.
+*   **Fix:**
+    ```bash
+    sudo modprobe rbd
+    ```
+    Try mapping again. To make it permanent, add `rbd` to `/etc/modules-load.d/ceph.conf`.
+
+#### Issue 2: `Permission denied` or `authentication error`
+*   **Cause:** Incorrect keyring permissions or wrong key content.
+*   **Fix:**
+    1.  Check permissions: `ls -l /etc/ceph/ceph.client.admin.keyring` (Must be `600`).
+    2.  Ensure the keyring file has no extra spaces or missing brackets.
+    3.  Test with verbose output: `rbd -l debug map ...`
+
+#### Issue 3: `Device /dev/rbd0 is busy` during unmap
+*   **Cause:** You forgot to unmount the filesystem, or a process is using a file inside the mount point.
+*   **Fix:**
+    1.  Find the process: `lsof +f -- /mnt/ceph-data`
+    2.  Kill the process or close the terminal session.
+    3.  Unmount: `sudo umount /mnt/ceph-data`
+    4.  Then unmap.
+
+#### Issue 4: Slow Performance
+*   **Cause:** Network bottleneck or mixing HDD/SSD in the same PG without proper rules.
+*   **Fix:** Check network speed (`ethtool`) and ensure your client has 1Gbps or 10Gbps connectivity to the cluster. Verify `ceph -w` for slow request warnings.
+
+---
+
+### Summary Checklist for Daily Operations
+
+| Task | Command |
+| :--- | :--- |
+| **Check Connection** | `ceph -s` |
+| **List Images** | `rbd ls -p <pool>` |
+| **Map Image** | `sudo rbd map -p <pool> <image>` |
+| **Show Mapped** | `rbd showmapped` |
+| **Format (New)** | `sudo mkfs.ext4 /dev/rbdX` |
+| **Mount** | `sudo mount /dev/rbdX /mnt/point` |
+| **Unmount** | `sudo umount /mnt/point` |
+| **Unmap** | `sudo rbd unmap /dev/rbdX` |
+
+You now have a fully functional Ceph client capable of mounting and managing RBD images from your 3-node cluster. Treat `/dev/rbdX` like any other physical hard drive, but remember it is backed by the resilience of your distributed cluster.
+
+---
+
+## 7. RBD Snapshot and Clone (Backup & Testing)
+
+### 7.1 Create a Snapshot
 
 ```bash
 # Create a snapshot of the current state
@@ -621,7 +732,7 @@ ceph --name client.rbd-user --keyring /etc/ceph/ceph.client.rbd-user.keyring \
 # 4       snapshot-1   50 GiB
 ```
 
-### 5.2 Protect Snapshot (Required for Cloning)
+### 7.2 Protect Snapshot (Required for Cloning)
 
 ```bash
 # Protect the snapshot
@@ -634,7 +745,7 @@ ceph --name client.rbd-user --keyring /etc/ceph/ceph.client.rbd-user.keyring \
 # Will show 'p' flag for protected
 ```
 
-### 5.3 Create a Clone from Snapshot
+### 7.3 Create a Clone from Snapshot
 
 ```bash
 # Create a clone (new independent image from snapshot)
@@ -648,7 +759,7 @@ ceph --name client.rbd-user --keyring /etc/ceph/ceph.client.rbd-user.keyring \
 # Expected: vm-disk-1, vm-disk-1-clone
 ```
 
-### 5.4 Rollback to Snapshot (If Needed)
+### 7.4 Rollback to Snapshot (If Needed)
 
 ```bash
 # If something goes wrong, rollback to snapshot
@@ -660,16 +771,16 @@ ceph --name client.rbd-user --keyring /etc/ceph/ceph.client.rbd-user.keyring \
 
 ---
 
-## Step 6: RBD Performance Testing
+## 8. RBD Performance Testing
 
-### 6.1 Install FIO Benchmark Tool
+### 8.1 Install FIO Benchmark Tool
 
 ```bash
 # Install fio for performance testing
 sudo apt install -y fio
 ```
 
-### 6.2 Run Sequential Write Test
+### 8.2 Run Sequential Write Test
 
 ```bash
 # Test sequential write performance
@@ -691,7 +802,7 @@ sudo fio --name=seq-write \
 - `write: IOPS=XXXX` (Input/Output Operations Per Second)
 - `write: BW=XXXX MiB/s` (Bandwidth)
 
-### 6.3 Run Random Read Test
+### 8.3 Run Random Read Test
 
 ```bash
 # Test random read performance (important for databases)
@@ -709,7 +820,7 @@ sudo fio --name=rand-read \
   --time_based
 ```
 
-### 6.4 Record Baseline Performance
+### 8.4 Record Baseline Performance
 
 ```bash
 # Save results for future comparison
@@ -730,7 +841,7 @@ sudo fio --name=baseline-test \
 
 ---
 
-## Step 7: Unmap RBD Image (When Done)
+## 9. Unmap RBD Image (When Done)
 
 ```bash
 # Unmount first
@@ -744,37 +855,6 @@ rbd showmapped
 
 # Should show no mappings
 ```
-
----
-
-## ✅ Part 2 Completion Checklist
-
-```bash
-# Run these to verify RBD setup:
-
-# □ RBD image created
-ceph rbd ls rbd-pool
-
-# □ Image mapped to client
-rbd showmapped
-
-# □ Device exists
-ls -la /dev/rbd0
-
-# □ Mounted successfully
-df -h /mnt/ceph-storage
-
-# □ Read/write works
-ls /mnt/ceph-storage/
-
-# □ Snapshot created
-ceph rbd snap ls rbd-pool/vm-disk-1
-
-# □ Persistent mapping configured
-systemctl status rbd-map-vm-disk-1.service
-```
-
-**If all checks pass, Part 2 is complete!** 🎉
 
 ---
 
