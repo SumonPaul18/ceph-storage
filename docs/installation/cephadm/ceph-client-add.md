@@ -526,7 +526,7 @@ sudo mkfs.xfs /dev/rbd0
 ### Scenario B: Existing Image (Skip Formatting)
 If the image was previously used and already has a filesystem, **DO NOT RUN MKFS**. Jump directly to mounting.
 
-### Create a Mount Point
+#### Create a Mount Point
 Create a directory where you want to access the storage.
 ```bash
 sudo mkdir -p /mnt/ceph-data
@@ -536,13 +536,13 @@ sudo mkdir -p /mnt/ceph-data
 sudo chmod 755 /mnt/ceph-data
 ```
 
-### Mount the Device
+#### Mount the Device
 Mount the mapped device to the directory.
 ```bash
 sudo mount /dev/rbd0 /mnt/ceph-data
 ```
 
-### Verify Mount
+#### Verify Mount
 Check if it is mounted successfully.
 ```bash
 df -h | grep rbd
@@ -604,14 +604,44 @@ WantedBy=multi-user.target
 
 ### 4.2 Create Mount Entry in fstab
 
-```bash
-# Backup fstab first
+
+#### Backup fstab first
+```
 sudo cp /etc/fstab /etc/fstab.backup
+```
+Open the file system table configuration.
+```bash
+sudo nano /etc/fstab
+```
 
-# Add mount entry
-echo "/dev/rbd0  /mnt/ceph-storage  ext4  _netdev,noatime  0  0" | sudo tee -a /etc/fstab
+Add the following line at the end of the file. Replace placeholders with your actual values.
 
-# Verify the entry
+**Syntax:**
+```text
+# <Device Spec>                                  <Mount Point>   <Type>  <Options>                                                       <Dump> <Pass>
+```
+
+**Entry for Ceph RBD:**
+```text
+/dev/rbd/<pool-name>/<image-name>   /mnt/ceph-data    ext4    defaults,_netdev,noatime,nofail,x-systemd.after=network-online.target   0 2
+```
+
+**Real Example:**
+If your pool is `rbd` and image is `web-disk`:
+```text
+/dev/rbd/rbd/web-disk   /mnt/ceph-data    ext4    defaults,_netdev,noatime,nofail,x-systemd.after=network-online.target   0 2
+```
+
+#### Explanation of Options (Crucial for Stability):
+*   `defaults`: Standard read/write options.
+*   `_netdev`: **Most Important.** Tells Linux this is a network device. It waits for the network to be up before trying to mount. Without this, the server might hang on boot.
+*   `noatime`: Improves performance by not updating "access time" metadata on every file read. Highly recommended for Ceph.
+*   `nofail`: If the Ceph cluster is down during boot, the system will still boot up (instead of dropping to emergency mode). The mount will just fail silently until the cluster is back.
+*   `x-systemd.after=network-online.target`: Ensures the mount happens only after the network is fully online, not just "starting".
+
+
+#### Verify the entry
+```
 tail -3 /etc/fstab
 ```
 
