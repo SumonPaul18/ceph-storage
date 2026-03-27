@@ -216,50 +216,61 @@ sudo modprobe nbd max_part=16
 ```
 sudo rbd-nbd map rbd-pool/vm-disk-01 --id admin
 ```
-# ডিভাইস চেক করুন
-lsblk | grep nbd
-# আউটপুট: /dev/nbd0
+#### ডিভাইস চেক করুন
 ```
+lsblk | grep nbd
+```
+> #### আউটপুট: /dev/nbd0
 
 ### ৩.৪ ফাইলসিস্টেম তৈরি ও মাউন্ট করুন
 
-```bash
-# ১. ম্যাপ করা ডিভাইস চেক করুন
+
+#### ১. ম্যাপ করা ডিভাইস চেক করুন
+```
 ls -la /dev/rbd0
-
-# ২. ফাইলসিস্টেম তৈরি করুন (প্রথমবারের জন্য)
-# ext4 ফাইলসিস্টেম (সাধারণ ব্যবহারের জন্য)
+```
+#### ২. ফাইলসিস্টেম তৈরি করুন (প্রথমবারের জন্য)
+#### ext4 ফাইলসিস্টেম (সাধারণ ব্যবহারের জন্য)
+```
 sudo mkfs.ext4 /dev/rbd0
-
-# অথবা XFS ফাইলসিস্টেম (হাই পারফরমেন্সের জন্য)
+```
+#### অথবা XFS ফাইলসিস্টেম (হাই পারফরমেন্সের জন্য)
+```
 sudo mkfs.xfs /dev/rbd0
-
-# ৩. মাউন্ট পয়েন্ট তৈরি করুন
+```
+#### ৩. মাউন্ট পয়েন্ট তৈরি করুন
+```
 sudo mkdir -p /mnt/rbd-storage
-
-# ৪. ডিভাইস মাউন্ট করুন
+```
+#### ৪. ডিভাইস মাউন্ট করুন
+```
 sudo mount /dev/rbd0 /mnt/rbd-storage
-
-# ৫. মাউন্ট ভেরিফাই করুন
+```
+#### ৫. মাউন্ট ভেরিফাই করুন
+```
 df -h | grep rbd
 mount | grep rbd
 ```
 
 ### ৩.৫ ডেটা রাইট/রিড টেস্ট করুন
 
-```bash
-# ১. টেস্ট ফাইল তৈরি করুন
+
+#### ১. টেস্ট ফাইল তৈরি করুন
+```
 echo "RBD Storage Test - $(date)" | sudo tee /mnt/rbd-storage/test-file.txt
-
-# ২. বড় ফাইল তৈরি করুন (পারফরমেন্স টেস্ট)
+```
+#### ২. বড় ফাইল তৈরি করুন (পারফরমেন্স টেস্ট)
+```
 sudo dd if=/dev/urandom of=/mnt/rbd-storage/random-data.bin bs=1M count=500
-
-# ৩. ফাইল ভেরিফাই করুন
+```
+#### ৩. ফাইল ভেরিফাই করুন
+```
 cat /mnt/rbd-storage/test-file.txt
 ls -lh /mnt/rbd-storage/
 md5sum /mnt/rbd-storage/random-data.bin
-
-# ৪. ডিস্ক ইউসেজ চেক করুন
+```
+#### ৪. ডিস্ক ইউসেজ চেক করুন
+```
 df -h /mnt/rbd-storage
 ```
 
@@ -269,11 +280,13 @@ df -h /mnt/rbd-storage
 
 ### ৪.১ fstab এন্ট্রি যুক্ত করুন
 
-```bash
-# ১. বর্তমান fstab ব্যাকআপ নিন
-sudo cp /etc/fstab /etc/fstab.backup-$(date +%F)
 
-# ২. RBD ডিভাইসের UUID বের করুন
+#### ১. বর্তমান fstab ব্যাকআপ নিন
+```
+sudo cp /etc/fstab /etc/fstab.backup-$(date +%F)
+```
+#### ২. RBD ডিভাইসের UUID বের করুন
+```
 sudo blkid /dev/rbd0
 ```
 
@@ -282,28 +295,32 @@ sudo blkid /dev/rbd0
 /dev/rbd0: UUID="a1b2c3d4-e5f6-7890-abcd-ef1234567890" TYPE="ext4"
 ```
 
-```bash
-# ৩. fstab এ এন্ট্রি অ্যাড করুন
+#### ৩. fstab এ এন্ট্রি অ্যাড করুন
+```
 sudo nano /etc/fstab
 ```
 
 **নিচের লাইন যুক্ত করুন:**
 
-```bash
-# অপশন A: ডিভাইস পাথ দিয়ে (সহজ)
+
+#### অপশন A: ডিভাইস পাথ দিয়ে (সহজ)
+```
 /dev/rbd0  /mnt/rbd-storage  ext4  _netdev,noatime,nodiratime  0  2
-
-# অপশন B: RBD নাম দিয়ে (রিকমেন্ডেড)
+```
+#### অপশন B: RBD নাম দিয়ে (রিকমেন্ডেড)
+```
 rbd-pool/vm-disk-01  /mnt/rbd-storage  ext4  _netdev,noatime,nodiratime,id=admin  0  2
-
-# অপশন C: UUID দিয়ে (সবচেয়ে নিরাপদ)
+```
+#### অপশন C: UUID দিয়ে (সবচেয়ে নিরাপদ)
+```
 UUID=a1b2c3d4-e5f6-7890-abcd-ef1234567890  /mnt/rbd-storage  ext4  _netdev,noatime,nodiratime  0  2
 ```
 
 ### ৪.২ RBD অটো-ম্যাপ সার্ভিস তৈরি করুন
 
-```bash
-# ১. সিস্টেমড সার্ভিস ফাইল তৈরি করুন
+
+#### ১. সিস্টেমড সার্ভিস ফাইল তৈরি করুন
+```
 sudo nano /etc/systemd/system/rbd-map.service
 ```
 
@@ -325,29 +342,35 @@ TimeoutStartSec=60
 WantedBy=multi-user.target
 ```
 
-```bash
-# ২. সার্ভিস এনেবল ও স্টার্ট করুন
+
+#### ২. সার্ভিস এনেবল ও স্টার্ট করুন
+```
 sudo systemctl daemon-reload
 sudo systemctl enable rbd-map.service
 sudo systemctl start rbd-map.service
-
-# ৩. সার্ভিস স্ট্যাটাস চেক করুন
+```
+#### ৩. সার্ভিস স্ট্যাটাস চেক করুন
+```
 sudo systemctl status rbd-map.service
 ```
 
 ### ৪.৩ fstab ভেরিফিকেশন ও টেস্ট
 
-```bash
-# ১. বর্তমান মাউন্ট আনমাউন্ট করুন
+
+#### ১. বর্তমান মাউন্ট আনমাউন্ট করুন
+```
 sudo umount /mnt/rbd-storage
-
-# ২. fstab টেস্ট করুন (actual mount ছাড়া)
+```
+#### ২. fstab টেস্ট করুন (actual mount ছাড়া)
+```
 sudo mount -a --dry-run
-
-# ৩. যদি dry-run সফল হয়, actual mount করুন
+```
+#### ৩. যদি dry-run সফল হয়, actual mount করুন
+```
 sudo mount -a
-
-# ৪. মাউন্ট ভেরিফাই করুন
+```
+#### ৪. মাউন্ট ভেরিফাই করুন
+```
 df -h | grep rbd-storage
 mount | grep rbd-storage
 ```
@@ -358,8 +381,9 @@ mount | grep rbd-storage
 
 ### ৫.১ পারফরমেন্স টিউনিং (ceph.conf)
 
-```bash
-# ক্লায়েন্ট ceph.conf এ পারফরমেন্স অপ্টিমাইজেশন অ্যাড করুন
+
+#### ক্লায়েন্ট ceph.conf এ পারফরমেন্স অপ্টিমাইজেশন অ্যাড করুন
+```
 sudo nano /etc/ceph/ceph.conf
 ```
 
@@ -390,8 +414,9 @@ rbd_skip_partial_discard = false
 
 #### A. রিস্ট্রিক্টেড ক্লায়েন্ট কী তৈরি করুন
 
-```bash
-# Ceph ক্লাস্টারে (Node1 থেকে) নতুন ক্লায়েন্ট কী তৈরি করুন
+
+#### Ceph ক্লাস্টারে (Node1 থেকে) নতুন ক্লায়েন্ট কী তৈরি করুন
+```
 sudo cephadm shell -- ceph auth get-or-create client.app-server \
   mon 'profile rbd' \
   osd 'profile rbd pool=rbd-pool' \
@@ -404,8 +429,9 @@ sudo cephadm shell -- ceph auth get-or-create client.app-server \
     key = AQCxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==
 ```
 
-```bash
-# ক্লায়েন্টে নতুন কী রিং ফাইল তৈরি করুন
+
+#### ক্লায়েন্টে নতুন কী রিং ফাইল তৈরি করুন
+```
 sudo nano /etc/ceph/ceph.client.app-server.keyring
 ```
 
@@ -415,48 +441,58 @@ sudo nano /etc/ceph/ceph.client.app-server.keyring
     key = AQCxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==
 ```
 
-```bash
-# পারমিশন ঠিক করুন
+
+#### পারমিশন ঠিক করুন
+```
 sudo chmod 600 /etc/ceph/ceph.client.app-server.keyring
 sudo chown root:root /etc/ceph/ceph.client.app-server.keyring
 ```
 
-```bash
-# নতুন কী দিয়ে ম্যাপ করুন
+
+#### নতুন কী দিয়ে ম্যাপ করুন
+```
 sudo rbd map rbd-pool/vm-disk-01 --id app-server \
   --keyring /etc/ceph/ceph.client.app-server.keyring
 ```
 
 #### B. এনক্রিপশন এনেবল করুন (LUKS)
 
-```bash
-# ১. cryptsetup ইনস্টল করুন
+
+#### ১. cryptsetup ইনস্টল করুন
+```
 sudo apt install -y cryptsetup
-
-# ২. RBD ইমেজ এনক্রিপ্ট করুন
+```
+#### ২. RBD ইমেজ এনক্রিপ্ট করুন
+```
 sudo cryptsetup luksFormat /dev/rbd0
-
-# ৩. এনক্রিপ্টেড ডিভাইস ওপেন করুন
+```
+#### ৩. এনক্রিপ্টেড ডিভাইস ওপেন করুন
+```
 sudo cryptsetup open /dev/rbd0 rbd-encrypted
-
-# ৪. এনক্রিপ্টেড ভলিউমে ফাইলসিস্টেম তৈরি করুন
+```
+#### ৪. এনক্রিপ্টেড ভলিউমে ফাইলসিস্টেম তৈরি করুন
+```
 sudo mkfs.ext4 /dev/mapper/rbd-encrypted
-
-# ৫. মাউন্ট করুন
+```
+#### ৫. মাউন্ট করুন
+```
 sudo mkdir -p /mnt/rbd-encrypted
 sudo mount /dev/mapper/rbd-encrypted /mnt/rbd-encrypted
 ```
 
 ### ৫.৩ কোটা ও লিমিট সেটআপ
 
-```bash
-# ১. RBD ইমেজ সাইজ রিসাইজ করুন
+
+#### ১. RBD ইমেজ সাইজ রিসাইজ করুন
+```
 sudo rbd resize rbd-pool/vm-disk-01 --size 150G --allow-shrink
-
-# ২. বর্তমান সাইজ চেক করুন
+```
+#### ২. বর্তমান সাইজ চেক করুন
+```
 rbd info rbd-pool/vm-disk-01 | grep size
-
-# ৩. পুল কোটা সেট করুন (Ceph ক্লাস্টারে)
+```
+#### ৩. পুল কোটা সেট করুন (Ceph ক্লাস্টারে)
+```
 sudo cephadm shell -- ceph osd pool set-quota rbd-pool max_objects 100000
 sudo cephadm shell -- ceph osd pool set-quota rbd-pool max_bytes 1099511627776
 ```
