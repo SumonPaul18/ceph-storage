@@ -380,6 +380,9 @@ sudo nano /etc/hosts
 **Real-World Analogy:**
 > Like a USB drive, but instead of plugging it into your computer, it lives on the network. You can plug it into any computer that has permission.
 
+<details>
+<summary> If not Create RBD Image </summary>
+
 ### 1.2 Create RBD Image (On Ceph Admin Node OR Client)
 
 ```bash
@@ -426,6 +429,7 @@ ceph --name client.admin --keyring /etc/ceph/ceph.client.admin.keyring \
 | `fast-diff` | Quickly calculates changed blocks | Faster snapshots |
 | `deep-flatten` | Allows snapshot deletion without copying data | Saves space |
 
+</details>
 ---
 
 ## Step 2: Map RBD Image to Client Machine
