@@ -285,13 +285,57 @@ ceph --name client.rbd-user --keyring /etc/ceph/ceph.client.rbd-user.keyring -s
     osd: 6 osds: 6 up, 6 in
 ```
 
-### 5.2 Test Connection with Admin User
+### 5.2 Test Connection & Verify
 
-
+#### Check Ceph Cluster Health Status
+```bash
+ceph -s
+```
 #### Test with admin credentials (should show more details)
 ```
 ceph --name client.admin --keyring /etc/ceph/ceph.client.admin.keyring -s
 ```
+#### Discovery – Listing Pools and Images
+
+Now that you are connected, let's see what RBD images you have created.
+
+#### List All Pools
+First, verify you can see the pools.
+```bash
+ceph osd pool ls
+```
+
+#### List RBD Images in a Specific Pool
+Replace `<pool-name>` with your actual pool name (e.g., `rbd`, `data-pool`, `mixed-pool`).
+
+```bash
+rbd ls -p <pool-name>
+```
+*Example:*
+```bash
+rbd ls -p rbd
+```
+*Output:*
+```text
+my-first-image
+web-server-disk
+database-vol
+```
+
+#### Get Detailed Info About an Image
+Before mounting, check the size and features of the image.
+```bash
+rbd info -p <pool-name> <image-name>
+```
+*Example:*
+```bash
+rbd info -p rbd my-first-image
+```
+*Look for:* `size`, `format`, and `features`. Ensure the size matches your expectation.
+
+---
+
+
 
 ### 5.3 Troubleshooting Connection Issues
 
@@ -305,11 +349,13 @@ ceph --name client.admin --keyring /etc/ceph/ceph.client.admin.keyring -s
 
 **Add hosts to /etc/hosts if DNS not available:**
 
-```bash
-# Edit hosts file
-sudo nano /etc/hosts
 
-# Add these lines
+#### Edit hosts file
+```
+sudo nano /etc/hosts
+```
+#### Add these lines
+```
 192.168.10.11  ceph-node1
 192.168.10.12  ceph-node2
 192.168.10.13  ceph-node3
@@ -317,30 +363,6 @@ sudo nano /etc/hosts
 
 ---
 
-## ✅ Part 1 Completion Checklist
-
-```bash
-# Run these to verify everything is ready:
-
-# □ Ceph tools installed
-ceph --version
-
-# □ Config file exists
-ls -la /etc/ceph/ceph.conf
-
-# □ Keyring files exist with correct permissions
-ls -la /etc/ceph/ceph.client.*.keyring
-
-# □ Can connect to cluster
-ceph --name client.rbd-user --keyring /etc/ceph/ceph.client.rbd-user.keyring -s
-
-# □ Time is synced
-chronyc sources -v
-```
-
-**If all commands succeed, Part 1 is complete!** 🎉
-
----
 
 # PART 2: RBD Image Mapping & Configuration
 
