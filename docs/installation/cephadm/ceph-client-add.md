@@ -6,7 +6,7 @@
 ## 📋 Table of Contents
 1. [Part 1: Connect Linux Client to Ceph Cluster](#part-1-connect-linux-client-to-ceph-cluster)
 2. [Part 2: RBD Image Mapping & Configuration](#part-2-rbd-image-mapping--configuration)
-3. [Part 3: Connect RGW & CephFS Services](#part-3-connect-rgw--cephfs-services)
+3. [Part 3: Connect RGW & CephFS Services](#7-connect-rgw--cephfs-services)
 
 ---
 
@@ -489,16 +489,18 @@ rbd showmapped
 
 ### 2.2 Understanding the Device
 
-```bash
-# Check the device details
-ls -la /dev/rbd0
 
-# Check device information
-sudo fdisk -l /dev/rbd0
-
-# You should see something like:
-# Disk /dev/rbd0: 50 GiB, 53687091200 bytes
+#### Check the device details
 ```
+ls -la /dev/rbd0
+```
+#### Check device information
+```
+sudo fdisk -l /dev/rbd0
+```
+#### You should see something like:
+#### Disk /dev/rbd0: 50 GiB, 53687091200 bytes
+
 
 > ✅ **Success:** Your Ceph storage is now available as `/dev/rbd0` on your client!
 
@@ -554,20 +556,25 @@ df -h | grep rbd
 
 ### 3.4 Test Read/Write Operations
 
-```bash
-# Create a test file
+
+#### Create a test file
+```
 echo "Hello Ceph RBD Storage!" | sudo tee /mnt/ceph-storage/test.txt
-
-# Read the file back
+```
+#### Read the file back
+```
 cat /mnt/ceph-storage/test.txt
-
-# Create larger test file (100 MB)
+```
+#### Create larger test file (100 MB)
+```
 sudo dd if=/dev/urandom of=/mnt/ceph-storage/test-100mb.bin bs=1M count=100
-
-# Verify file was created
+```
+#### Verify file was created
+```
 ls -lh /mnt/ceph-storage/
-
-# Check disk usage
+```
+#### Check disk usage
+```
 df -h /mnt/ceph-storage
 ```
 
@@ -579,8 +586,9 @@ df -h /mnt/ceph-storage
 
 > RBD mappings don't survive reboot by default. We need to create a service to remap on boot.
 
-```bash
-# Create systemd service file
+
+#### Create systemd service file
+```
 sudo nano /etc/systemd/system/rbd-map-vm-disk-1.service
 ```
 
@@ -647,20 +655,24 @@ tail -3 /etc/fstab
 
 ### 4.3 Enable and Test the Service
 
-```bash
-# Reload systemd to recognize new service
+
+#### Reload systemd to recognize new service
+```
 sudo systemctl daemon-reload
-
-# Enable service to start on boot
+```
+#### Enable service to start on boot
+```
 sudo systemctl enable rbd-map-vm-disk-1.service
-
-# Test the service (unmap first, then start service)
+```
+#### Test the service (unmap first, then start service)
+```
 sudo umount /mnt/ceph-storage
 sudo rbd unmap /dev/rbd0
 sudo systemctl start rbd-map-vm-disk-1.service
 sudo mount /dev/rbd0 /mnt/ceph-storage
-
-# Verify everything works
+```
+#### Verify everything works
+```
 df -h /mnt/ceph-storage
 ls /mnt/ceph-storage/
 ```
