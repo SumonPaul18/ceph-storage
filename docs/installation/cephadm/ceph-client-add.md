@@ -586,31 +586,7 @@ df -h /mnt/ceph-storage
 
 > RBD mappings don't survive reboot by default. We need to create a service to remap on boot.
 
-
-#### Create systemd service file
-```
-sudo nano /etc/systemd/system/rbd-map-vm-disk-1.service
-```
-
-**Add this content:**
-
-```ini
-[Unit]
-Description=Map Ceph RBD Image vm-disk-1
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/rbd map vm-disk-1 --pool rbd-pool --name client.rbd-user
-ExecStop=/usr/bin/rbd unmap /dev/rbd0
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-```
-
-### 4.2 Create Mount Entry in fstab
+### Create Mount Entry in fstab
 
 
 #### Backup fstab first
@@ -652,18 +628,86 @@ If your pool is `rbd` and image is `web-disk`:
 ```
 tail -3 /etc/fstab
 ```
+---
 
-### 4.3 Enable and Test the Service
+### Advanced Permanent Mounting (Systemd Service Method)
 
+For complex environments where `fstab` might be too rigid or if you need to run specific scripts before/after mounting, a **Systemd Service** is the modern, professional approach.
 
-#### Reload systemd to recognize new service
+#### Create a Service File
+Create a new service unit file.
+```bash
+sudo nano /etc/systemd/system/ceph-rbd-mount.service
+```
+
+#### Define the Service Logic
+Paste the following content. Adjust `<pool>`, `<image>`, and `<mount-point>`.
+
+```ini
+[Unit]
+Description=Mount Ceph RBD Image
+After=network-online.target ceph-mon.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/sbin/modprobe rbd
+ExecStart=/usr/bin/rbd map -p <pool-name> <image-name>
+ExecStart=/bin/mount -o noatime /dev/rbd/<pool-name>/<image-name> /mnt/ceph-data
+ExecStop=/bin/umount /mnt/ceph-data
+ExecStop=/usr/bin/rbd unmap /dev/rbd/<pool-name>/<image-name>
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Example Configuration:**
+```ini
+[Unit]
+Description=Mount Ceph RBD Web Disk
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/sbin/modprobe rbd
+ExecStart=/usr/bin/rbd map -p rbd web-disk
+ExecStart=/bin/mount -o noatime /dev/rbd/rbd/web-disk /mnt/ceph-data
+ExecStop=/bin/umount /mnt/ceph-data
+ExecStop=/usr/bin/rbd unmap /dev/rbd/rbd/web-disk
+
+[Install]
+WantedBy=multi-user.target
+```
+
+#### Enable and Start the Service
+
+#### Reload systemd to recognize the new file
 ```
 sudo systemctl daemon-reload
 ```
-#### Enable service to start on boot
+#### Enable to start on boot
 ```
-sudo systemctl enable rbd-map-vm-disk-1.service
+sudo systemctl enable ceph-rbd-mount.service
 ```
+#### Start immediately
+```
+sudo systemctl start ceph-rbd-mount.service
+```
+#### Check status
+```
+sudo systemctl status ceph-rbd-mount.service
+```
+
+**Why use this over fstab?**
+*   Better logging via `journalctl -u ceph-rbd-mount.service`.
+*   You can add `ExecStartPre` checks (e.g., ping the monitor IP before mapping).
+*   Cleaner separation of concerns.
+
+---
+
 #### Test the service (unmap first, then start service)
 ```
 sudo umount /mnt/ceph-storage
