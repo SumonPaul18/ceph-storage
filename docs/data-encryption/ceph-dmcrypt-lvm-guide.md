@@ -42,6 +42,9 @@ You see: FileNotFoundError: [Errno 2] No such file or directory: 'ceph-bluestore
    1. Package Verification: Ensure the OSD package is actually on the host.
    
    apt-get update && apt-get install ceph-osd -y
+
+   > which ceph-osd
+   > which ceph-bluestore-tool
    
    2. Path Fix: Sometimes the binary is there, but the shell can't see it. Update your session path:
    
