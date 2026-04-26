@@ -1,7 +1,3 @@
-YES.
-
-Here is the professional, practical guide based on your request.
-
 # File Name: `ceph-osd-removal-guide.md`
 
 ---
@@ -33,9 +29,9 @@ This step stops data from being written to the OSD and triggers data rebalancing
 
 **Command:**
 ```bash
-ceph osd out $OSD_ID
+ceph osd out 12
 ```
-
+> Replace your actual osd id to 12
 **Explanation:**
 *   `ceph osd out`: Marks the specified OSD as "out" of the cluster.
 *   `$OSD_ID`: The ID of the OSD to be removed (e.g., `11`).
@@ -46,8 +42,9 @@ Stop the running OSD service to ensure it is not actively processing requests.
 
 **Command:**
 ```bash
-ceph orch daemon stop osd.$OSD_ID
+ceph orch daemon stop osd.12
 ```
+> Replace your actual osd id to 12
 
 **Explanation:**
 *   `ceph orch daemon stop`: Stops the specific daemon managed by cephadm.
@@ -58,8 +55,9 @@ This command removes the OSD from the Ceph orchestration and the cluster map.
 
 **Command:**
 ```bash
-ceph orch osd rm $OSD_ID
+ceph orch osd rm 12
 ```
+> Replace your actual osd id to 12
 
 **Explanation:**
 *   `ceph orch osd rm`: Initiates the removal process via the orchestrator.
@@ -74,10 +72,11 @@ If the orchestrator removal does not fully clean up the authentication keys or C
 
 **Commands:**
 ```bash
-ceph osd crush remove osd.$OSD_ID
-ceph auth del osd.$OSD_ID
-ceph osd rm $OSD_ID
+ceph osd crush remove osd.12
+ceph auth del osd.12
+ceph osd rm 12
 ```
+> Replace your actual osd id to 12
 
 **Explanation:**
 *   `ceph osd crush remove`: Removes the OSD from the CRUSH hierarchy.
