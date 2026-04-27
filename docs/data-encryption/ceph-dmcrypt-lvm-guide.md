@@ -1,10 +1,4 @@
-Here is the practical, step-by-step technical guide for **Ceph OSD Engineering with LVM & Dmcrypt**. This document is structured as a professional narrative for system administrators, focusing on hands-on execution with clear explanations in simple English.
-
-***
-
 # 🛠️ Ceph OSD Engineering: LVM & Dmcrypt Practical Handbook
-
-**File Name:** `Ceph-OSD-Dmcrypt-LVM-Guide.md`  
 **Target Audience:** DevOps Engineers, System Administrators, Storage Engineers  
 **Context:** Managing Ceph Storage Clusters on Ubuntu/RHEL with Encryption (Data at Rest) and LVM.
 
