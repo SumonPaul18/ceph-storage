@@ -18,33 +18,39 @@
 ## 1. Prerequisites
 Ensure you have root access or sudo privileges on the Ceph admin node. Replace `<osd_id>` with the actual OSD ID (e.g., `11`) and `<device_path>` with the actual disk path (e.g., `/dev/vdd`).
 
-```bash
-export OSD_ID=11
-export DEVICE_PATH=/dev/vdd
-export HOST_NAME=ceph1
+#### List all OSD_ID
+```
+ceph osd tree
+```
+#### Find out the specefic OSD Disk DEVICE_PATH
+```
+lsblk
+```
+#### Verify to HOST_NAME
+```
+hostname
 ```
 
 ## 2. Step 1: Mark OSD as Out
 This step stops data from being written to the OSD and triggers data rebalancing to other OSDs in the cluster.
 
-**Command:**
 ```bash
-ceph osd out 12
+ceph osd out [Only_OSD_ID]
 ```
-> Replace your actual osd id to 12
+> Example: ceph osd out 12
+
 **Explanation:**
 *   `ceph osd out`: Marks the specified OSD as "out" of the cluster.
-*   `$OSD_ID`: The ID of the OSD to be removed (e.g., `11`).
+*   `$OSD_ID`: The ID of the OSD to be removed (e.g., `12`).
 *   **Note:** Wait for the cluster to finish rebalancing (`ceph -s` should show `HEALTH_OK` or no active backfilling) before proceeding if possible, though forced removal is also supported.
 
 ## 3. Step 2: Stop the OSD Daemon
 Stop the running OSD service to ensure it is not actively processing requests.
 
-**Command:**
 ```bash
-ceph orch daemon stop osd.12
+ceph orch daemon stop [OSD.OSD_ID]
 ```
-> Replace your actual osd id to 12
+> Example: ceph orch daemon stop osd.12
 
 **Explanation:**
 *   `ceph orch daemon stop`: Stops the specific daemon managed by cephadm.
@@ -53,11 +59,10 @@ ceph orch daemon stop osd.12
 ## 4. Step 3: Remove OSD from Cluster
 This command removes the OSD from the Ceph orchestration and the cluster map.
 
-**Command:**
 ```bash
-ceph orch osd rm 12
+ceph orch osd rm [Only_OSD_ID]
 ```
-> Replace your actual osd id to 12
+> Example: ceph orch osd rm 12
 
 **Explanation:**
 *   `ceph orch osd rm`: Initiates the removal process via the orchestrator.
@@ -70,13 +75,16 @@ ceph orch osd rm 12
 ## 5. Step 4: Clean Up Authentication and CRUSH Map
 If the orchestrator removal does not fully clean up the authentication keys or CRUSH map entries, perform these steps manually.
 
-**Commands:**
 ```bash
-ceph osd crush remove osd.12
-ceph auth del osd.12
-ceph osd rm 12
+ceph osd crush remove [OSD.OSD_ID]
 ```
-> Replace your actual osd id to 12
+```
+ceph auth del [OSD.OSD_ID]
+```
+```
+ceph osd rm [Only_OSD_ID]
+```
+> Replace to your actual OSD ID
 
 **Explanation:**
 *   `ceph osd crush remove`: Removes the OSD from the CRUSH hierarchy.
@@ -86,10 +94,10 @@ ceph osd rm 12
 ## 6. Step 5: Zap and Wipe the Disk
 This step wipes the partition table and any remaining Ceph metadata from the physical disk, making it available for reuse.
 
-**Command:**
 ```bash
 ceph orch device zap $HOST_NAME $DEVICE_PATH --force
 ```
+> Example: ceph orch device zap ceph1 /dev/vdd --force
 
 **Explanation:**
 *   `ceph orch device zap`: Wipes the device signature.
@@ -101,14 +109,18 @@ ceph orch device zap $HOST_NAME $DEVICE_PATH --force
 ```bash
 ceph-volume lvm zap $DEVICE_PATH --destroy
 ```
+> Example: ceph-volume lvm zap /dev/vdd --destroy
 
 ## 7. Step 6: Verify Removal
 Confirm that the OSD is no longer present in the cluster and the disk is clean.
 
-**Commands:**
 ```bash
 ceph osd tree
+```
+```
 lsblk -f $DEVICE_PATH
+```
+```
 ceph orch device ls --refresh
 ```
 
@@ -121,25 +133,31 @@ ceph orch device ls --refresh
 
 ### Quick Copy-Paste Block (For OSD 11 on /dev/vdd)
 
-```bash
-# 1. Mark Out
+
+#### 1. Mark Out
+```
 ceph osd out 11
-
-# 2. Stop Daemon
+```
+#### 2. Stop Daemon
+```
 ceph orch daemon stop osd.11
-
-# 3. Remove via Orchestrator
+```
+#### 3. Remove via Orchestrator
+```
 ceph orch osd rm 11
-
-# 4. Manual Cleanup (If needed)
+```
+#### 4. Manual Cleanup (If needed)
+```
 ceph osd crush remove osd.11
 ceph auth del osd.11
 ceph osd rm 11
-
-# 5. Zap Disk
+```
+#### 5. Zap Disk
+```
 ceph orch device zap ceph1 /dev/vdd --force
-
-# 6. Verify
+```
+#### 6. Verify
+```
 ceph osd tree
 lsblk -f /dev/vdd
 ```
@@ -188,18 +206,24 @@ fuser -v /dev/vdd
 If the OSD was encrypted (`dmcrypt`), you must close the crypto layer and deactivate the LVM volume group before zapping.
 
 **Commands:**
-```bash
-# 1. Find the LV path from previous output (e.g., /dev/ceph-xxxx/osd-block-xxxx)
-# 2. Deactivate the Logical Volume
+
+#### 1. Find the LV path from previous output (e.g., /dev/ceph-xxxx/osd-block-xxxx)
+#### 2. Deactivate the Logical Volume
+```
 lvchange -an /dev/ceph-4e0b8bbd-ade6-43ca-b258-fabd3573be8d/osd-block-fc90d120-400d-4f38-b005-d9026403695b
-
-# 3. If encrypted, close the LUKS mapper (replace <mapper_name> with actual name from dmsetup ls)
+```
+#### 3. If encrypted, close the LUKS mapper (replace <mapper_name> with actual name from dmsetup ls)
+```
 cryptsetup luksClose /dev/mapper/ceph-4e0b8bbd-ade6-43ca-b258-fabd3573be8d-osd-block-fc90d120-400d-4f38-b005-d9026403695b
-
-# 4. Remove the device-mapper entry if it persists
+```
+#### 4. Remove the device-mapper entry if it persists
+```
 dmsetup remove /dev/mapper/ceph-4e0b8bbd-ade6-43ca-b258-fabd3573be8d-osd-block-fc90d120-400d-4f38-b005-d9026403695b
 ```
-
+**If not work above command, Then try the bellow command**
+```
+dmsetup remove -f ceph--4e0b8bbd--ade6--43ca--b258--fabd3573be8d-osd--block--fc90d120--400d--4f38--b005--d9026403695b
+```
 **Explanation:**
 *   `lvchange -an`: Deactivates the LV so it is no longer accessible.
 *   `cryptsetup luksClose`: Closes the encrypted container.
@@ -209,12 +233,16 @@ dmsetup remove /dev/mapper/ceph-4e0b8bbd-ade6-43ca-b258-fabd3573be8d-osd-block-f
 If any process (like `ceph-osd` or `podman`) is still holding the file descriptor, kill it.
 
 **Commands:**
-```bash
-# Kill any process using the device
-fuser -km /dev/vdd
 
-# Ensure no ceph-osd daemon is running for this ID
+#### Kill any process using the device
+```
+fuser -km /dev/vdd
+```
+#### Ensure no ceph-osd daemon is running for this ID
+```
 ps aux | grep osd.11
+```
+```
 kill -9 <PID>
 ```
 
@@ -226,14 +254,17 @@ kill -9 <PID>
 Now that the device is inactive, remove the LVM metadata signatures directly from the host (not inside the container).
 
 **Commands:**
-```bash
-# Wipe the LVM signature from the physical volume
+
+#### Wipe the LVM signature from the physical volume
+```
 pvremove -ff /dev/vdd
-
-# If the above fails because it's part of a VG, remove the VG first
+```
+#### If the above fails because it's part of a VG, remove the VG first
+```
 vgremove -f ceph-4e0b8bbd-ade6-43ca-b258-fabd3573be8d
-
-# Then retry pvremove
+```
+#### Then retry pvremove
+```
 pvremove -ff /dev/vdd
 ```
 
@@ -245,14 +276,17 @@ pvremove -ff /dev/vdd
 Use `wipefs` to clear all remaining filesystem, RAID, and partition table signatures. This is often more effective than `ceph-volume zap` for stuck disks.
 
 **Commands:**
-```bash
-# Wipe all signatures
+
+#### Wipe all signatures
+```
 wipefs -a /dev/vdd
-
-# Zero out the first 10MB to ensure clean slate (optional but recommended)
+```
+#### Zero out the first 10MB to ensure clean slate (optional but recommended)
+```
 dd if=/dev/zero of=/dev/vdd bs=1M count=10 status=progress
-
-# Inform the kernel of partition table changes
+```
+#### Inform the kernel of partition table changes
+```
 partprobe /dev/vdd
 ```
 
@@ -265,16 +299,18 @@ partprobe /dev/vdd
 Confirm the disk is clean and ready for Ceph to reuse.
 
 **Commands:**
-```bash
-# Verify disk is clean
+
+#### Verify disk is clean
+```
 lsblk -f /dev/vdd
 udevadm settle
-
-# Refresh Ceph device list
-ceph orch device ls --refresh
-
-# The disk should now appear as "Available" in Ceph
 ```
+#### Refresh Ceph device list
+```
+ceph orch device ls --refresh
+```
+#### The disk should now appear as "Available" in Ceph
+
 
 **Explanation:**
 *   `lsblk -f`: Should show no FSTYPE or MOUNTPOINT for `/dev/vdd`.
