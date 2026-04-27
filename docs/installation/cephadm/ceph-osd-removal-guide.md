@@ -1,7 +1,3 @@
-# Ceph OSD Removal Guide
-
----
-
 # Ceph OSD Removal and Disk Cleanup Guide
 
 ## Table of Contents
