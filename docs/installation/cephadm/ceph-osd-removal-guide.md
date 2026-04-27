@@ -1,4 +1,4 @@
-# File Name: `ceph-osd-removal-guide.md`
+# Ceph OSD Removal Guide
 
 ---
 
