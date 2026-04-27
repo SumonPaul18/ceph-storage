@@ -37,7 +37,7 @@ This step stops data from being written to the OSD and triggers data rebalancing
 ```bash
 ceph osd out [Only_OSD_ID]
 ```
-> Example: ceph osd out 12
+> Example: ``ceph osd out 12``
 
 **Explanation:**
 *   `ceph osd out`: Marks the specified OSD as "out" of the cluster.
@@ -50,7 +50,7 @@ Stop the running OSD service to ensure it is not actively processing requests.
 ```bash
 ceph orch daemon stop [OSD.OSD_ID]
 ```
-> Example: ceph orch daemon stop osd.12
+> Example: ``ceph orch daemon stop osd.12``
 
 **Explanation:**
 *   `ceph orch daemon stop`: Stops the specific daemon managed by cephadm.
@@ -72,7 +72,7 @@ ceph orch osd rm [Only_OSD_ID]
   ```bash
   ceph orch osd rm $OSD_ID --force
   ```
-> Example: ceph orch osd rm 12 --force
+> Example: ``ceph orch osd rm 12 --force``
 
 ## 5. Step 4: Clean Up Authentication and CRUSH Map
 If the orchestrator removal does not fully clean up the authentication keys or CRUSH map entries, perform these steps manually.
@@ -99,7 +99,7 @@ This step wipes the partition table and any remaining Ceph metadata from the phy
 ```bash
 ceph orch device zap $HOST_NAME $DEVICE_PATH --force
 ```
-> Example: ceph orch device zap ceph1 /dev/vdd --force
+> Example: ``ceph orch device zap ceph1 /dev/vdd --force``
 
 **Explanation:**
 *   `ceph orch device zap`: Wipes the device signature.
@@ -111,7 +111,7 @@ ceph orch device zap $HOST_NAME $DEVICE_PATH --force
 ```bash
 ceph-volume lvm zap $DEVICE_PATH --destroy
 ```
-> Example: ceph-volume lvm zap /dev/vdd --destroy
+> Example: ``ceph-volume lvm zap /dev/vdd --destroy``
 
 ## 7. Step 6: Verify Removal
 Confirm that the OSD is no longer present in the cluster and the disk is clean.
