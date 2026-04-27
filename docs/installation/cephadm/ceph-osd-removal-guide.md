@@ -62,15 +62,17 @@ This command removes the OSD from the Ceph orchestration and the cluster map.
 ```bash
 ceph orch osd rm [Only_OSD_ID]
 ```
-> Example: ceph orch osd rm 12
+> Example: ``ceph orch osd rm 12``
 
 **Explanation:**
 *   `ceph orch osd rm`: Initiates the removal process via the orchestrator.
 *   `$OSD_ID`: The ID of the OSD to remove.
 *   **Note:** If the OSD is stuck, you may need to use `--force` (use with caution):
-    ```bash
-    ceph orch osd rm $OSD_ID --force
-    ```
+
+  ```bash
+  ceph orch osd rm $OSD_ID --force
+  ```
+> Example: ceph orch osd rm 12 --force
 
 ## 5. Step 4: Clean Up Authentication and CRUSH Map
 If the orchestrator removal does not fully clean up the authentication keys or CRUSH map entries, perform these steps manually.
