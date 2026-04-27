@@ -80,13 +80,15 @@ If the orchestrator removal does not fully clean up the authentication keys or C
 ```bash
 ceph osd crush remove [OSD.OSD_ID]
 ```
+> Example: ``ceph osd crush remove osd.12``
 ```
 ceph auth del [OSD.OSD_ID]
 ```
+> Example: ``ceph auth del osd.12``
 ```
 ceph osd rm [Only_OSD_ID]
 ```
-> Replace to your actual OSD ID
+> Example: ``ceph osd rm 12``
 
 **Explanation:**
 *   `ceph osd crush remove`: Removes the OSD from the CRUSH hierarchy.
