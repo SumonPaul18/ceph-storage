@@ -80,7 +80,7 @@ There are three primary ways to deploy OSDs in Ceph Reef:
 
 This is the fastest way to expand storage if you want to use **all** empty disks on **all** nodes.
 
-#### Command 1: Dry Run (Simulation)
+#### Dry Run (Simulation)
 Before making changes, simulate the deployment to see what *would* happen.
 
 ```bash
@@ -95,7 +95,7 @@ ceph orch apply osd --all-available-devices --dry-run
 >
 > **Output:** A list of hosts and devices that *would* be converted to OSDs.
 
-#### Command 2: Execute Automatic Deployment
+#### Execute Automatic Deployment
 If the dry run looks correct, execute the deployment.
 
 ```bash
@@ -149,7 +149,15 @@ ceph osd tree
 
 Use this when you want to add OSDs on **specific disks** on **specific hosts**. This is common when you have mixed disk types or want to control placement precisely.
 
-#### Command 1: Add OSD on a Specific Device
+
+#### Wipe the disk through the orchestrator:
+You need to "zap" (wipe) the disk to remove all signatures before Ceph will accept it.
+```
+ceph orch device zap ceph4 /dev/sdb --force
+```
+> Replace `hostname` and `/dev/sdX` with your actual values.
+
+#### Add OSD on a Specific Device
 Replace `hostname` and `/dev/sdX` with your actual values.
 
 ```bash
