@@ -329,7 +329,19 @@ ceph -w
 > *   `recovery` messages decreasing.
 > *   Final message: `cluster is now healthy`.
 
-### Step 3: Stop and Remove the OSD Daemon
+### Step 3: Stop the OSD Daemon
+Stop the running OSD service to ensure it is not actively processing requests.
+
+**Command:**
+```bash
+ceph orch daemon stop osd.$OSD_ID
+```
+
+**Explanation:**
+*   `ceph orch daemon stop`: Stops the specific daemon managed by cephadm.
+*   `osd.$OSD_ID`: Specifies the OSD daemon to stop.
+
+### Step 4: Stop and Remove the OSD Daemon
 Once rebalancing is complete, remove the daemon from the host.
 
 ```bash
@@ -344,7 +356,45 @@ ceph orch daemon rm osd.<osd-id> --force
 >
 > **Note:** This stops the OSD process and removes it from `cephadm` management. The disk still contains data.
 
-### Step 4: Wipe the Disk (Erasing/Cleanup)
+
+### Step 5: Remove OSD from Cluster
+This command removes the OSD from the Ceph orchestration and the cluster map.
+
+**Command:**
+```bash
+ceph orch osd rm $OSD_ID
+```
+
+**Explanation:**
+*   `ceph orch osd rm`: Initiates the removal process via the orchestrator.
+*   `$OSD_ID`: The ID of the OSD to remove.
+*   **Note:** If the OSD is stuck, you may need to use `--force` (use with caution):
+    ```bash
+    ceph orch osd rm $OSD_ID --force
+    ```
+
+### Step 6: Clean Up Authentication and CRUSH Map
+If the orchestrator removal does not fully clean up the authentication keys or CRUSH map entries, perform these steps manually.
+
+**Commands:**
+```bash
+ceph osd crush remove osd.$OSD_ID
+```
+```
+ceph auth del osd.$OSD_ID
+```
+```
+ceph osd rm $OSD_ID
+```
+
+**Explanation:**
+*   `ceph osd crush remove`: Removes the OSD from the CRUSH hierarchy.
+*   `ceph auth del`: Deletes the authentication credentials for the OSD.
+*   `ceph osd rm`: Permanently removes the OSD ID from the cluster map.
+
+
+
+### Step 7: Wipe the Disk (Erasing/Cleanup)
 If you plan to reuse the disk or return it to storage, you must wipe it.
 
 #### Option A: Wipe Using Ceph Orchestrator (Recommended)
@@ -375,7 +425,7 @@ sudo dd if=/dev/zero of=/dev/sdc bs=1M count=100
 >
 > **When to Use:** Only if the orchestrator cannot access the disk or fails to zap it.
 
-### Step 5: Verify Removal
+### Step 8: Verify Removal
 Confirm the OSD is gone from the cluster.
 
 ```bash
