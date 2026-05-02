@@ -20,8 +20,18 @@ ceph config set global ms_client_mode secure
 ```bash
 ceph config dump | grep ms_
 ```
-
+OR
+```
+ceph config dump | grep -E 'ms_mode|ms_bind'
+```
 এখানে `ms_cluster_mode`, `ms_service_mode`, এবং `ms_client_mode` এর ভ্যালু secure দেখালে বুঝবেন এনক্রিপশন এনাবল হয়েছে।
+
+```
+ss -tlnp | grep -E '3300|6789' | grep ceph
+```
+```
+ceph config metadata mon | grep ms_mode
+```
 
 ## ৩. সার্ভিস রিস্টার্ট (প্রয়োজন হলে)
 
