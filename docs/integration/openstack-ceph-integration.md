@@ -1,8 +1,11 @@
 # Practical Guide: Integrating Ceph Storage with OpenStack via Kolla-Ansible
+
+![Ceph-Storage](./src/images/openstack-ceph-integr)
+
 ### Real-World Implementation for Single-Node Kolla-Ansible + 3-Node Ceph Cluster
 #### Reference:
 - [github.com/filip-lebiecki/ceph](https://github.com/filip-lebiecki/ceph)
--[github.com/hojat-gazestani/openstack/](https://github.com/hojat-gazestani/openstack/tree/main/Ceph/first)
+- [github.com/hojat-gazestani/openstack/](https://github.com/hojat-gazestani/openstack/tree/main/Ceph/first)
 
 > **Infrastructure Context**
 > - **OpenStack Node (All-in-One Kolla-Ansible)**: `192.168.68.69`
