@@ -3,9 +3,7 @@
 ![Ceph-Storage](https://github.com/SumonPaul18/ceph-storage/blob/main/src/images/openstack-ceph-integr.png)
 
 ### Real-World Implementation for Single-Node Kolla-Ansible + 3-Node Ceph Cluster
-#### Reference:
-- [github.com/filip-lebiecki/ceph](https://github.com/filip-lebiecki/ceph)
-- [github.com/hojat-gazestani/openstack/](https://github.com/hojat-gazestani/openstack/tree/main/Ceph/first)
+
 
 > **Infrastructure Context**
 > - **OpenStack Node (All-in-One Kolla-Ansible)**: `192.168.68.69`
@@ -695,9 +693,12 @@ When all parts are aligned, you get smooth acceleration: fast volume provisionin
 
 ---
 
+#### Reference:
 *This guide follows official documentation from:*  
 - [Kolla-Ansible External Ceph Guide (2025.2)](https://docs.openstack.org/kolla-ansible/2025.2/reference/storage/external-ceph-guide.html)  
 - [Ceph RBD with OpenStack](https://docs.ceph.com/en/latest/rbd/rbd-openstack/)  
+- [github.com/filip-lebiecki/ceph](https://github.com/filip-lebiecki/ceph)
+- [github.com/hojat-gazestani/openstack/](https://github.com/hojat-gazestani/openstack/tree/main/Ceph/first)
 
 *Last verified against: Ceph Squid (19.2.x), OpenStack 2025.2 (Caracal), Kolla-Ansible 2025.2*  
 *Infrastructure tested: Single-node Kolla-Ansible + 3-node Ceph cluster (as per user specs)*  
