@@ -76,25 +76,31 @@ Always refer to [Docker Official Docs](https://docs.docker.com/engine/install/ub
 **1. Uninstall old versions**
 ```bash
 apt remove docker docker-engine docker.io containerd runc
-
-# 2. Install prerequisites
+```
+#### 2. Install prerequisites
+```
 apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
-
-# 3. Add Docker’s official GPG key
+```
+#### 3. Add Docker’s official GPG key
+```
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-# 4. Set up the stable repository
+```
+#### 4. Set up the stable repository
+```
 echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-# 5. Install Docker Engine
+```
+#### 5. Install Docker Engine
+```
 apt update
 apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
-# 6. Start Docker
+```
+#### 6. Start Docker
+```
 systemctl start docker
 systemctl enable docker
-
-# 7. Verify Installation
+```
+#### 7. Verify Installation
+```
 docker --version
 ```
 
@@ -114,11 +120,12 @@ The Admin Node (`ceph1`) must be able to SSH into `ceph5` as `root` without a pa
 
 **On Admin Node (`ceph1`):**
 
+#### Generate SSH Key if not exists
 ```bash
-# Generate SSH Key if not exists
 ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
-
-# Copy Key to New Node (ceph5)
+```
+#### Copy Key to New Node (ceph5)
+```
 ssh-copy-id root@192.168.10.252
 ```
 
@@ -136,11 +143,12 @@ ssh root@192.168.10.252 "hostname"
 
 **On Admin Node (`ceph1`):**
 
+#### Add the new host
 ```bash
-# Add the new host
 ceph orch host add ceph5 192.168.10.252
-
-# List all hosts to confirm
+```
+#### List all hosts to confirm
+```
 ceph orch host ls
 ```
 
@@ -173,11 +181,12 @@ Keep **3 MONs** on `ceph1`, `ceph2`, and `ceph3`. Use `ceph5` for Storage (OSD) 
 **Action:**
 Check current MON placement. If it automatically added a MON to `ceph5`, you may want to restrict it to 3 nodes for stability unless you plan to add a 5th node soon.
 
+#### Check current MON deployment
 ```bash
-# Check current MON deployment
 ceph orch ls mon
-
-# If you want to explicitly pin MONs to ceph1, ceph2, ceph3:
+```
+#### If you want to explicitly pin MONs to ceph1, ceph2, ceph3:
+```
 ceph orch apply mon --placement="3 ceph1 ceph2 ceph3"
 ```
 
@@ -190,8 +199,9 @@ Deploy MGRs on `ceph1` (Admin) and `ceph5` (New Node) to distribute load.
 
 ```bash
 ceph orch apply mgr --placement="2 ceph1 ceph5"
-
-# Verify
+```
+#### Verify
+```
 ceph orch ps | grep mgr
 ```
 *Expected Output:* Two MGR instances, one `active`, one `standby`.
@@ -262,33 +272,41 @@ ceph health detail
 *Goal:* `HEALTH_OK`. If `HEALTH_WARN`, read the details. Common warnings include "too few PGs" or "clock skew".
 
 ### 6.2 Service Status
-```bash
-# Check all running daemons
-ceph orch ps
+#### Check all running daemons
 
-# Check host status
+```bash
+ceph orch ps
+```
+#### Check host status
+```
 ceph orch host ls
 ```
 
 ### 6.3 Data Path Test
 Create a test pool and write data to verify end-to-end functionality.
 
+#### 1. Create a pool with 64 PGs
+
 ```bash
-# 1. Create a pool with 64 PGs
 ceph osd pool create testpool 64 64
-
-# 2. Set replication size to 3 (default)
+```
+#### 2. Set replication size to 3 (default)
+```
 ceph osd pool set testpool size 3
-
-# 3. Write a test object
+```
+#### 3. Write a test object
+```
 echo "Ceph Expansion Test Data" > testfile.txt
 rados put test-object-1 testfile.txt --pool=testpool
+```
 
-# 4. Read it back
+#### 4. Read it back
+```
 rados get test-object-1 testfile-read.txt --pool=testpool
 cat testfile-read.txt
-
-# 5. Map the object to see where it lives
+```
+#### 5. Map the object to see where it lives
+```
 ceph osd map testpool test-object-1
 ```
 *Expected Output:* The map should show OSDs located on different hosts (e.g., one on `ceph1`, one on `ceph2`, one on `ceph5`), confirming data distribution.
@@ -300,17 +318,21 @@ ceph osd map testpool test-object-1
 ### 7.1 Enable Ceph Dashboard
 For visual monitoring, enable the built-in dashboard.
 
-```bash
 # Enable module
+
+```bash
 ceph mgr module enable dashboard
-
-# Generate self-signed cert (for internal/RnD)
+```
+#### Generate self-signed cert (for internal/RnD)
+```
 ceph dashboard create-self-signed-cert
-
-# Create admin user
+```
+#### Create admin user
+```
 ceph dashboard ac-user-create admin <your-password> administrator
-
-# Get URL
+```
+#### Get URL
+```
 ceph mgr services
 ```
 Access via: `https://<ceph1-ip>:8443`
@@ -318,8 +340,9 @@ Access via: `https://<ceph1-ip>:8443`
 ### 7.2 Scrubbing Optimization
 Scrubbing checks data integrity but impacts performance. Schedule it during off-peak hours.
 
+#### Set scrub window (e.g., 10 PM to 6 AM)
+
 ```bash
-# Set scrub window (e.g., 10 PM to 6 AM)
 ceph config set osd osd_scrub_begin_hour 22
 ceph config set osd osd_scrub_end_hour 6
 ```
@@ -327,8 +350,9 @@ ceph config set osd osd_scrub_end_hour 6
 ### 7.3 Regular Updates
 Keep Ceph packages updated on all nodes.
 
+#### On all nodes (ceph1, ceph2, ceph3, ceph5)
+
 ```bash
-# On all nodes (ceph1, ceph2, ceph3, ceph5)
 apt update
 apt upgrade ceph-common ceph-base ceph-mon ceph-mgr ceph-osd
 systemctl restart ceph-target@* # Restart services if needed
