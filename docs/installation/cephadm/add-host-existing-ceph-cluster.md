@@ -1,5 +1,7 @@
-# Ceph Cluster Expansion & Production Hardening Guide
-**Adding a 4th Node to a 3-Node Ceph Cluster (Cephadm/Orchestrator)**
+# Adding and Managing a New Host in Ceph Cluster
+## Operational Workflow for Seamless Cluster Expansion and Service Deployment
+
+![Ceph-Storage](./src/images/add-host-ceph.png)
 
 ## Table of Contents
 1. [Introduction & Architecture Overview](#1-introduction--architecture-overview)
