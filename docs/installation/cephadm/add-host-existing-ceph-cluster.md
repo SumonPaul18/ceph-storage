@@ -35,7 +35,7 @@ This guide documents the practical process of expanding an existing **3-node Cep
 Before adding the new host, ensure both the Admin Node and the New Node meet the following requirements.
 
 ### 2.1 Network Requirements
-*   **Same Subnet:** All nodes must be on the same Layer 2 network (e.g., `192.168.68.0/24`).
+*   **Same Subnet:** All nodes must be on the same Layer 2 network (e.g., `192.168.10.0/24`).
 *   **Connectivity:** Full bidirectional SSH access between Admin Node and New Node.
 *   **Firewall:** For RnD/Internal clusters, disable firewalls. For Production, open specific ports (6789 for MON, 3300/6800 for OSD/MGR).
 
@@ -44,23 +44,25 @@ Before adding the new host, ensure both the Admin Node and the New Node meet the
 #### Step 1: Set Hostname and IP
 Ensure the hostname matches the intended name (`ceph5`) and is resolvable.
 
+**On ceph5 (New Node)**
 ```bash
-# On ceph5 (New Node)
 hostnamectl set-hostname ceph5
-echo "192.168.68.252 ceph5" >> /etc/hosts
+echo "192.168.10.252 ceph5" >> /etc/hosts
 ```
 
 #### Step 2: Time Synchronization (Critical)
 Ceph relies heavily on time synchronization for authentication and data consistency.
 
+**Install Chrony**
 ```bash
-# Install Chrony
 apt update && apt install -y chrony
-
-# Enable and Start
+```
+**Enable and Start**
+```
 systemctl enable --now chronyd
-
-# Verify Sync
+```
+**Verify Sync**
+```
 chronyc sources
 ```
 *Expected Output:* You should see your NTP servers marked with `*` or `+`.
@@ -71,8 +73,8 @@ chronyc sources
 **Official Source Check:**
 Always refer to [Docker Official Docs](https://docs.docker.com/engine/install/ubuntu/) for the latest installation steps. Below is the standard procedure for Ubuntu 22.04/24.04.
 
+**1. Uninstall old versions**
 ```bash
-# 1. Uninstall old versions
 apt remove docker docker-engine docker.io containerd runc
 
 # 2. Install prerequisites
@@ -117,14 +119,14 @@ The Admin Node (`ceph1`) must be able to SSH into `ceph5` as `root` without a pa
 ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
 
 # Copy Key to New Node (ceph5)
-ssh-copy-id root@192.168.68.252
+ssh-copy-id root@192.168.10.252
 ```
 
 **Verification:**
 Test the connection. It should **not** ask for a password.
 
 ```bash
-ssh root@192.168.68.252 "hostname"
+ssh root@192.168.10.252 "hostname"
 ```
 *Expected Output:* `ceph5`
 
@@ -136,7 +138,7 @@ ssh root@192.168.68.252 "hostname"
 
 ```bash
 # Add the new host
-ceph orch host add ceph5 192.168.68.252
+ceph orch host add ceph5 192.168.10.252
 
 # List all hosts to confirm
 ceph orch host ls
@@ -145,10 +147,10 @@ ceph orch host ls
 *Expected Output:*
 ```
 HOST     ADDR             LABELS   STATUS
-ceph1    192.168.68.248   _admin   
-ceph2    192.168.68.249            
-ceph3    192.168.68.250            
-ceph5    192.168.68.252            
+ceph1    192.168.10.248   _admin   
+ceph2    192.168.10.249            
+ceph3    192.168.10.250            
+ceph5    192.168.10.252            
 ```
 
 If you see `ceph5` in the list with no error status, the host is successfully registered.
