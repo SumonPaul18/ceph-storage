@@ -1,7 +1,7 @@
 # Adding and Managing a New Host in Ceph Cluster
 ## Operational Workflow for Seamless Cluster Expansion and Service Deployment
 
-![Ceph-Storage](./src/images/add-host-ceph.png)
+![Add-Host-Ceph-Cluster](https://github.com/SumonPaul18/ceph-storage/blob/main/src/images/add-host-ceph.png)
 
 ## Table of Contents
 1. [Introduction & Architecture Overview](#1-introduction--architecture-overview)
