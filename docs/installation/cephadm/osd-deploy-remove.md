@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **Target Release:** Ceph Reef (v18.x)  
 **Author:** DevOps & Cloud Engineering Team  
-**Context:** Meghna Cloud R&D Lab – Infrastructure Operations  
+**Context:** Paulco Cloud R&D Lab – Infrastructure Operations  
 
 ---
 
@@ -20,7 +20,7 @@
 ## 1. Introduction and Environment Preparation
 
 ### Overview
-In a modern Cloud Service Provider environment like Meghna Cloud, storage is the backbone of our Infrastructure as a Service (IaaS). Ceph provides scalable, software-defined storage. The **OSD (Object Storage Daemon)** is the core component that stores data on physical disks. 
+In a modern Cloud Service Provider environment like Paulco Cloud, storage is the backbone of our Infrastructure as a Service (IaaS). Ceph provides scalable, software-defined storage. The **OSD (Object Storage Daemon)** is the core component that stores data on physical disks. 
 
 This guide focuses on the practical, hands-on management of OSDs using `cephadm`, the recommended deployment tool for Ceph Reef. We will cover how to safely add storage capacity and how to securely remove and wipe disks for reuse or decommissioning.
 

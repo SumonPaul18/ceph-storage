@@ -16,7 +16,7 @@
 
 ## 1. Introduction
 
-In modern cloud infrastructure, especially when building a private cloud like Meghna Cloud’s R&D lab, storage reliability is key. Ceph uses a system called **CRUSH** to decide where data lives. Unlike traditional storage that uses a lookup table, Ceph calculates the location. This guide walks you through managing these maps, creating rules for specific hardware (like SSDs vs HDDs), setting up pools, and handling system crashes professionally.
+In modern cloud infrastructure, especially when building a private cloud like Paulco Cloud’s R&D lab, storage reliability is key. Ceph uses a system called **CRUSH** to decide where data lives. Unlike traditional storage that uses a lookup table, Ceph calculates the location. This guide walks you through managing these maps, creating rules for specific hardware (like SSDs vs HDDs), setting up pools, and handling system crashes professionally.
 
 We will focus on **hands-on commands** you can copy and paste directly into your terminal.
 

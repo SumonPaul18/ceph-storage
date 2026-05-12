@@ -20,7 +20,7 @@
 ## 1. Introduction & Scenario Overview
 
 ### The Real-World Context
-In modern cloud infrastructure, particularly for Cloud Service Providers (CSPs) like Meghna Cloud, **Data Sovereignty** and **Security Compliance** are non-negotiable. One of the critical requirements is **Data-at-Rest Encryption**. This ensures that even if a physical hard drive is stolen from a data center rack, the data remains unreadable without the encryption keys.
+In modern cloud infrastructure, particularly for Cloud Service Providers (CSPs) like Paulco Cloud, **Data Sovereignty** and **Security Compliance** are non-negotiable. One of the critical requirements is **Data-at-Rest Encryption**. This ensures that even if a physical hard drive is stolen from a data center rack, the data remains unreadable without the encryption keys.
 
 This guide documents a real-life operational scenario where a DevOps Engineer needs to:
 1.  Enable encryption for all new OSDs (Object Storage Daemons) in a Ceph cluster managed by `cephadm`.
@@ -573,5 +573,5 @@ This guide has walked you through the end-to-end process of enabling and managin
 
 **Author:** Sumon  
 **Role:** DevOps & Cloud Engineer  
-**Context:** Meghna Cloud R&D Lab  
+**Context:** Paulco Cloud R&D Lab  
 **Date:** April 27, 2026

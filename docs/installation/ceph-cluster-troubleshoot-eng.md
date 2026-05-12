@@ -34,7 +34,7 @@ You are managing a **7-node production Ceph cluster** running version 18.2.0 (Re
 - **Monitors**: 3 nodes in quorum
 - **Managers**: 2 nodes (1 active, 1 standby)
 - **Orchestrator**: Cephadm
-- **Problem Node**: flash1.meghnacloud.com (172.16.10.111)
+- **Problem Node**: flash1.paulcocloud.com (172.16.10.111)
 
 ### The Problem Story
 
@@ -560,7 +560,7 @@ ceph orch host ls
 First, identify which host might be problematic
 
 ```bash
-ceph orch resume --host=flash1.meghnacloud.com
+ceph orch resume --host=flash1.paulcocloud.com
 ```
 
 **What this does**: Resumes orchestration only on the specified host
@@ -671,13 +671,13 @@ Check the "Status" column - should show "available"
 If a host is completely unavailable:
 
 ```bash
-ceph orch host rm flash1.meghnacloud.com
+ceph orch host rm flash1.paulcocloud.com
 ```
 
 **Warning**: Only do this if host is permanently lost
 
 ```bash
-ceph orch host add flash1.meghnacloud.com <labels>
+ceph orch host add flash1.paulcocloud.com <labels>
 ```
 
 **What this does**:
@@ -873,7 +873,7 @@ mgr: ceph1.gmpclf(active, since 25h), standbys: ceph2.btupjx
 ### Understanding the Flash1 Node Problem
 
 **Current situation**:
-- Host: flash1.meghnacloud.com (172.16.10.111)
+- Host: flash1.paulcocloud.com (172.16.10.111)
 - Multiple OSDs stopped: osd.108, 109, 110, 111, 112, 113, 115, 116, 117
 - Only osd.114 is running
 - Production cluster serving live traffic
@@ -1746,7 +1746,7 @@ cat > /tmp/recovery-report.txt << 'EOF'
 CEPH CLUSTER RECOVERY REPORT
 ============================
 Date: $(date)
-Node: flash1.meghnacloud.com
+Node: flash1.paulcocloud.com
 OSDs Recovered: 108, 109, 110, 111, 112, 113, 115, 116, 117
 
 Pre-Recovery Status:
@@ -2238,7 +2238,7 @@ Team,
 
 INCIDENT SUMMARY:
 - Time: [Timestamp]
-- Affected System: Ceph Cluster - flash1.meghnacloud.com
+- Affected System: Ceph Cluster - flash1.paulcocloud.com
 - Impact: [Data availability/Performance degradation]
 - Severity: [Critical/High/Medium]
 

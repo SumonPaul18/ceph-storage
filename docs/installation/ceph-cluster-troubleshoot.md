@@ -25,7 +25,7 @@
 - **CephDaemonCrash** এরর
 - **CephadmPaused** এবং **CephadmDaemonFailed** অ্যালার্ট
 - **Manager ডিমন** সমস্যা
-- **flash1.meghnacloud.com** নোডে ১১+ OSD ডিমন বন্ধ হয়ে যাওয়া
+- **flash1.paulcocloud.com** নোডে ১১+ OSD ডিমন বন্ধ হয়ে যাওয়া
 
 এই গাইডটি ধাপে ধাপে দেখাবে কীভাবে এই সমস্যাগুলো চিহ্নিত করা হলো, কীভাবে ডায়াগনোসিস করা হলো, এবং সবচেয়ে গুরুত্বপূর্ণভাবে - **প্রোডাকশন এনভায়রনমেন্টে নিরাপদে** কীভাবে সমাধান করা হলো।
 
@@ -135,7 +135,7 @@ ceph orch ps --format json-pretty
 
 **আমাদের চিহ্নিত সমস্যা:**
 ```
-flash1.meghnacloud.com নোডে:
+flash1.paulcocloud.com নোডে:
 - osd.108: stopped
 - osd.109: stopped
 - osd.110: stopped
@@ -596,7 +596,7 @@ ceph health
 
 ### সমস্যার বিবরণ
 
-**flash1.meghnacloud.com (172.16.10.111) নোডে:**
+**flash1.paulcocloud.com (172.16.10.111) নোডে:**
 
 ```
 stopped OSD গুলো:
@@ -644,7 +644,7 @@ stopped OSD গুলো:
 ```bash
 ssh root@172.16.10.111
 # অথবা
-ssh root@flash1.meghnacloud.com
+ssh root@flash1.paulcocloud.com
 ```
 
 **ধাপ ২: সিস্টেম লগ চেক করুন**

@@ -26,7 +26,7 @@ In a modern Cloud Infrastructure, specifically within a Proxmox VE environment r
 ### Why Use RGW?
 *   **Unstructured Data:** Ideal for storing images, videos, logs, backups, and static web assets.
 *   **Scalability:** Unlike traditional file systems, object storage scales horizontally without performance degradation.
-*   **Cost Efficiency:** Eliminates the need for expensive public cloud storage (like AWS S3) by hosting data locally in your data center (e.g., Meghna Cloud R&D Lab).
+*   **Cost Efficiency:** Eliminates the need for expensive public cloud storage (like AWS S3) by hosting data locally in your data center (e.g., Paulco Cloud R&D Lab).
 *   **Data Sovereignty:** Keeps sensitive data within local borders, complying with regional data protection laws.
 
 ### When to Use RGW vs. Other Ceph Interfaces?

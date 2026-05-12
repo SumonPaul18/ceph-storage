@@ -611,7 +611,7 @@ ceph osd getcrushmap -o /pre-change-crush.bin
 ceph osd pool ls detail > /pre-change-pools.txt
 
 # 3. Notify team of maintenance window
-echo "CRUSH maintenance scheduled: $(date)" | mail -s "Ceph Maintenance" team@meghna.cloud
+echo "CRUSH maintenance scheduled: $(date)" | mail -s "Ceph Maintenance" team@Paulco.cloud
 
 # 4. Verify cluster health
 ceph -s | grep HEALTH

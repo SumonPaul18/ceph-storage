@@ -19,7 +19,7 @@ Filename: `ceph-scaleout-handbook.md`
 ## 1. Introduction & Architectural Context
 
 ### The Scenario
-You are managing an R&D Cloud Infrastructure at **Meghna Cloud**, running a **Ceph Storage Cluster** on top of **Proxmox VE** virtual machines. Your initial setup consists of **3 Nodes** (`ceph1`, `ceph2`, `ceph3`) managed via `cephadm` (the modern Ceph Orchestrator).
+You are managing an R&D Cloud Infrastructure at **Paulco Cloud**, running a **Ceph Storage Cluster** on top of **Proxmox VE** virtual machines. Your initial setup consists of **3 Nodes** (`ceph1`, `ceph2`, `ceph3`) managed via `cephadm` (the modern Ceph Orchestrator).
 
 ### The Goal
 Expand the cluster by adding a **4th Node** (`ceph5` with IP `192.168.68.252`) to increase storage capacity and compute resources for distributed services. The guide focuses on **production-grade practices**, ensuring high availability (HA), security, and ease of maintenance.
@@ -479,7 +479,7 @@ You have successfully expanded your Ceph cluster from 3 to 4 nodes. By adhering 
 3.  **Automation:** Let `cephadm` handle config files; do not copy them manually.
 4.  **Verification:** Always test data path with `rados` put/get.
 
-**Next Steps for Meghna Cloud RnD:**
+**Next Steps for Paulco Cloud RnD:**
 1.  Integrate with OpenStack Cinder/Ceph driver.
 2.  Set up RGW (Rados Gateway) for S3-compatible object storage.
 3.  Implement Prometheus/Grafana monitoring stack using Docker Compose on Admin Node.
