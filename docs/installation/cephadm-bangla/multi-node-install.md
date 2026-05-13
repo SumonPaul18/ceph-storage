@@ -1,5 +1,8 @@
 # 🏗️ সম্পূর্ণ গাইড: প্রডাকশন গ্রেড ও এন্টারপ্রাইজ লেভেল Ceph Cluster সেটআপ
-**cephadm ব্যবহার করে Ubuntu 24.04.4 | সহজ বাংলা | বাস্তব উদাহরণসহ**
+**cephadm ব্যবহার করে Ubuntu 24.04.4 | প্র্যাকটিক্যাল | বাস্তব উদাহরণসহ**
+
+
+![multi-host-ceph](https://github.com/SumonPaul18/ceph-storage/blob/70836f01b2067dee0bb49dd72d08d1098c8c134b/src/images/multi-host-ceph-setup.png)
 
 ---
 
