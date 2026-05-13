@@ -117,7 +117,15 @@ dpkg -l | grep cephadm
 #### ৪. লিংকটি কপি করতে (`cephadm` ফাইলটির উপরে > Right-click > Copy Link Address)। লিংকটি এমন দেখাবে:
 - `https://download.ceph.com/rpm-squid/el9/noarch/cephadm`
 
-#### ৫. নিচের কমান্ডের URL টি আপনার কপি করা লিংক দিয়ে পরিবর্তন করুন অথবা `CEPH_RELEASE` ভেরিয়েবল ঠিক রেখে কমান্ডটি রান করুন।
+#### ৫. নিচের কমান্ডের URL টি আপনার কপি করা URL দিয়ে পরিবর্তন করুন অথবা `CEPH_RELEASE` ভেরিয়েবল ঠিক রেখে কমান্ডটি রান করুন।
+
+> example: curl --silent --remote-name --location `https://download.ceph.com/rpm-squid/el9/noarch/cephadm`
+
+```
+curl --silent --remote-name --location [paste here your url]
+```
+
+#### ৬. 
 
 #### ১. আপনার কাঙ্ক্ষিত রিলিজ নাম লিখুন (যেমন: reef, squid, quincy)
 
@@ -150,7 +158,7 @@ cephadm version
 
 এখন ক্লাস্টার বুটস্ট্রাপ করবো। যেহেতু আমি **Docker** ব্যবহার করতে চান এবং এটি **Single Node**, তাই নিচের ফ্ল্যাগগুলো অত্যন্ত গুরুত্বপূর্ণ:
 
-* `--mon-ip 192.168.68.180`: মনিটর সার্ভিসের IP
+* `--mon-ip 192.168.10.180`: মনিটর সার্ভিসের IP
 * `--single-host-defaults`: সিঙ্গেল নোডের জন্য CRUSH রুলস অটো-অপ্টিমাইজ করে (replica=2, failure-domain=host)
 * `--container-engine docker`: পডম্যানের বদলে ডকার ব্যবহার করার জন্য
 * `--initial-dashboard-user`: `admin` আপনার ইউজার নেম সেট করুন 
@@ -159,7 +167,7 @@ cephadm version
 #### ক্লাস্টার বুটস্ট্রাপ কমান্ড
 ```bash
 sudo cephadm bootstrap \
-  --mon-ip 192.168.68.180 \
+  --mon-ip 192.168.10.180 \
   --single-host-defaults \
   --container-engine docker  \
   --initial-dashboard-user admin \
