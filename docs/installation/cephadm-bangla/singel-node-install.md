@@ -1,9 +1,10 @@
-# 🐘 Cephadm দিয়ে Single Node Ceph Cluster ইন্সটলেশন গাইড (Ubuntu 24.04 + Docker)
+# 🐙 Cephadm দিয়ে Single Node Ceph Cluster ইন্সটলেশন গাইড (Ubuntu 24.04 + Docker)
 
 ![Cephadm](https://github.com/SumonPaul18/ceph-storage/blob/2f644cda4bdd027ca282d3d3bb182ae7cb6953f7/src/images/singel-host-ceph-setup.png)
 
+---
 
-> **অফিশিয়াল ডকুমেন্টেশন ফলো করে তৈরি:** https://docs.ceph.com/en/latest/cephadm/install/
+> **অফিশিয়াল ডকুমেন্টেশন Link:** https://docs.ceph.com/en/latest/cephadm/install/
 
 **আমার এনভায়রনমেন্ট:**
 | আইটেম | ভ্যালু |
@@ -31,8 +32,8 @@ sudo apt install -y ssh openssh-server lvm2 chrony curl jq
 ```
 sudo systemctl enable --now ssh
 ```
-#### ৩. Docker ইন্সটল (যদি আগে থেকে না থাকে)
-#### Ubuntu 24.04 এর জন্য অফিশিয়াল Docker repo থেকে ইন্সটল করা নিরাপদ
+#### ৩. Docker ইন্সটল করুন
+> Ubuntu 24.04 এর জন্য অফিশিয়াল Docker repo থেকে ইন্সটল করা নিরাপদ
 ```
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
@@ -102,21 +103,21 @@ dpkg -l | grep cephadm
 
 **✅ সুবিধা:** Ceph রিলিজের উপর পূর্ণ নিয়ন্ত্রণ থাকে।
 
-**🔍 সঠিক ডাউনলোড লিংক খুঁজে বের করার নিয়ম:**
+**🔍 সঠিক ডাউনলোড লিংক খুঁজে বের করুন:**
 
-১. **[https://download.ceph.com/](https://download.ceph.com/)** ওয়েবসাইটে যান।
+#### ১. **[https://download.ceph.com/](https://download.ceph.com/)** ওয়েবসাইটে যান।
 
-২. `আপনার প্রয়োজন অনুযায়ী ceph version` খুঁজুন (যেমন: `rpm-reef`, `rpm-squid`, `rpm-quincy`)।
+#### ২. `আপনার প্রয়োজন অনুযায়ী ceph version` খুঁজুন (যেমন: `rpm-reef`, `rpm-squid`, `rpm-quincy`)।
    * `reef` = Ceph v18 (LTS - প্রডাকশনের জন্য সেরা)
    * `squid` = Ceph v19 (লেটেস্ট)
    * `quincy` = Ceph v17 (পুরনো LTS)
 
-৩. এরপর ক্রমান্বয়ে `নির্দিষ্ট version` ফোল্ডারে যান এবং `el9` ফাইলটিতে ক্লিক করুন তারপরে `noarch` ক্লিক করুন এবং `cephadm` ফাইলটির লিংক কপি করুন।
+#### ৩. এরপর ক্রমান্বয়ে `নির্দিষ্ট version` ফোল্ডারে যান এবং `el9` ফাইলটিতে ক্লিক করুন তারপরে `noarch` ক্লিক করুন এবং `cephadm` ফাইলটির লিংক কপি করুন।
 
-৪. লিংকটি কপি করতে (`cephadm` ফাইলটির উপরে > Right-click > Copy Link Address)। লিংকটি এমন দেখাবে:
+#### ৪. লিংকটি কপি করতে (`cephadm` ফাইলটির উপরে > Right-click > Copy Link Address)। লিংকটি এমন দেখাবে:
 - `https://download.ceph.com/rpm-squid/el9/noarch/cephadm`
 
-৫. নিচের কমান্ডের URL টি আপনার কপি করা লিংক দিয়ে পরিবর্তন করুন অথবা `CEPH_RELEASE` ভেরিয়েবল ঠিক রেখে কমান্ডটি রান করুন।
+#### ৫. নিচের কমান্ডের URL টি আপনার কপি করা লিংক দিয়ে পরিবর্তন করুন অথবা `CEPH_RELEASE` ভেরিয়েবল ঠিক রেখে কমান্ডটি রান করুন।
 
 #### ১. আপনার কাঙ্ক্ষিত রিলিজ নাম লিখুন (যেমন: reef, squid, quincy)
 
