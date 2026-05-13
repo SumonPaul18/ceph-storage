@@ -460,24 +460,21 @@ sudo apt remove --purge cephadm ceph-common -y
 sudo apt autoremove -y
 ```
 
-#### ধাপ ৪: ফাইল ও ডিরেক্টরি ক্লিনআপ
+### ধাপ ৪: ফাইল ও ডিরেক্টরি ক্লিনআপ
 
-# প্রধান Ceph ডিরেক্টরিগুলো রিমুভ
+#### প্রধান Ceph ডিরেক্টরিগুলো রিমুভ
 ```
 sudo rm -rf /etc/ceph
 sudo rm -rf /var/lib/ceph
 sudo rm -rf /var/log/ceph
 sudo rm -rf /var/cache/ceph
 ```
-### যদি Rook ব্যবহার করে থাকেন তবে সেই ডিরেক্টরিও রিমুভ
-```
-sudo rm -rf /var/lib/rook
-```
+
 #### cephadm বাইনারি এবং স্ক্রিপ্ট ফাইল মুছে ফেলা (বিভিন্ন লোকেশন চেক করে)
 ```
 sudo rm -f /usr/sbin/cephadm
 sudo rm -f /usr/local/bin/cephadm
-sudo rm -f ./cephadm  # বর্তমান ডিরেক্টরিতে থাকলে
+sudo rm -f ./cephadm
 ```
 #### APT রিপোজিটরি এবং GPG কি রিমুভ
 ```
@@ -491,7 +488,7 @@ sudo sed -i '/ceph-public/d' /root/.ssh/authorized_keys 2>/dev/null
 sudo sed -i '/ceph-admin/d' /root/.ssh/authorized_keys 2>/dev/null
 ```
 
-#### ধাপ ৫: সিস্টেম রিস্টার্ট (Optional but Recommended)
+### ধাপ ৫: সিস্টেম রিস্টার্ট (Optional but Recommended)
 ```bash
 sudo reboot
 ```
@@ -688,7 +685,7 @@ cat /etc/ceph/ceph.conf | grep container_engine
 ```bash
 # Multi-Node Bootstrap (First Node)
 sudo cephadm bootstrap \
-  --mon-ip 192.168.68.180 \
+  --mon-ip 192.168.10.180 \
   --container-engine docker
 
 # পরবর্তী নোডগুলো অ্যাড করার সময়ও Docker ব্যবহার নিশ্চিত করতে:
