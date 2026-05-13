@@ -1,5 +1,8 @@
 # 🐘 Cephadm দিয়ে Single Node Ceph Cluster ইন্সটলেশন গাইড (Ubuntu 24.04 + Docker)
 
+![Cephadm](https://github.com/SumonPaul18/ceph-storage/blob/2f644cda4bdd027ca282d3d3bb182ae7cb6953f7/src/images/singel-host-ceph-setup.png)
+
+
 > **অফিশিয়াল ডকুমেন্টেশন ফলো করে তৈরি:** https://docs.ceph.com/en/latest/cephadm/install/
 
 **আমার এনভায়রনমেন্ট:**
