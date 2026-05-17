@@ -1,6 +1,8 @@
 # 🏗️ Complete Guide: Production Grade & Enterprise Level Ceph Cluster Setup
 **Using cephadm on Ubuntu 24.04.4 | Simple English | Real-World Examples**
 
+![multi-host-ceph](https://github.com/SumonPaul18/ceph-storage/blob/70836f01b2067dee0bb49dd72d08d1098c8c134b/src/images/multi-host-ceph-setup.png)
+
 ---
 
 ## 📋 Table of Contents
