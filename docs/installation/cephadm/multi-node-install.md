@@ -21,26 +21,6 @@
 
 ![multi-host-ceph](https://github.com/SumonPaul18/ceph-storage/blob/da6c21836787a7a6cce48f472056b19859aeebdd/src/images/ceph-cluster-high-level-eng.png)
 
-```
-                    ┌─────────────────────────┐
-                    │   Client Applications   │
-                    │   (VMs, K8s, Databases) │
-                    └────────┬────────────────┘
-                             │
-              ┌──────────────┴──────────────┐
-              │   Public Network (Frontend) │
-              │   Port: 6789, 3300, 6800+   │
-              └──────────────┬──────────────┘
-                             │
-    ┌────────────────────────┼────────────────────────┐
-    │                        │                        │
-┌───▼────┐           ┌────▼─────┐           ┌────▼─────┐
-│Node 1  │           │ Node 2   │           │ Node 3   │
-│MON+MGR │◄─Cluster─►│ MON+OSD  │◄─Cluster─►│ MON+OSD  │
-│+OSD    │  Network  │ +OSD     │  Network  │ +OSD     │
-│        │(Backend)  │          │(Backend)  │          │
-└────────┘           └──────────┘           └──────────┘
-```
 
 ### 1.2 Prerequisites Checklist (With Real-World Examples)
 
@@ -59,26 +39,7 @@
 
 ![Network Architecture](https://github.com/SumonPaul18/ceph-storage/blob/da6c21836787a7a6cce48f472056b19859aeebdd/src/images/multi-host-ceph-networking.png)
 
-```
-┌─────────────────────────────────────────┐
-│           Physical Network Layout        │
-├─────────────────────────────────────────┤
-│                                          │
-│  ┌─────────────┐     ┌─────────────┐    │
-│  │ Public NIC  │     │Cluster NIC  │    │
-│  │ 192.168.10.x│     │ 10.10.10.x  │    │
-│  │ (Client)    │     │ (Replication)│   │
-│  └──────┬──────┘     └──────┬──────┘    │
-│         │                   │            │
-│  ┌──────▼───────────────────▼──────┐    │
-│  │        Ceph Node (Each)         │    │
-│  │  • MON/MGR on Public Network    │    │
-│  │  • OSD replication on Cluster   │    │
-│  │    Network (fast, isolated)     │    │
-│  └─────────────────────────────────┘    │
-│                                          │
-└─────────────────────────────────────────┘
-```
+
 
 **Configuration in `/etc/ceph/ceph.conf`:**
 ```ini
