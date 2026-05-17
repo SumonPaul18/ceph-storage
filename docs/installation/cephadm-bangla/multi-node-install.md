@@ -20,6 +20,8 @@
 
 ### 1.1 হাই-লেভেল আর্কিটেকচার (লজিক্যাল ভিউ)
 
+![ceph-high-level-architecture](https://github.com/SumonPaul18/ceph-storage/blob/da6c21836787a7a6cce48f472056b19859aeebdd/src/images/ceph-cluster-high-level.png)
+
 ```
                     ┌─────────────────────────┐
                     │   ক্লায়েন্ট অ্যাপ্লিকেশন   │
@@ -55,6 +57,8 @@
 | **কার্নেল প্যারামিটার** | `vm.swappiness=1`, `net.ipv4.ip_forward=1` | গাড়ির ইঞ্জিন টিউনিংয়ের মতো: ডিফল্ট সেটিংস কাজ করে, কিন্তু অপ্টিমাইজড সেটিংস ভালো পারফরমেন্স দেয়। | মেমোরি সোয়াপিং রোধ করে (যা Ceph-কে স্লো করে) এবং সঠিক নেটওয়ার্ক রাউটিং এনেবল করে। |
 
 ### 1.3 নেটওয়ার্ক আর্কিটেকচার (প্রডাকশন রিকমেন্ডেড)
+
+![Network Architecture](https://github.com/SumonPaul18/ceph-storage/blob/da6c21836787a7a6cce48f472056b19859aeebdd/src/images/multi-host-ceph-networking.png)
 
 ```
 ┌─────────────────────────────────────────┐

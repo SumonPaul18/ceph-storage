@@ -19,6 +19,8 @@
 
 ### 1.1 High-Level Architecture (Logical View)
 
+![multi-host-ceph](https://github.com/SumonPaul18/ceph-storage/blob/da6c21836787a7a6cce48f472056b19859aeebdd/src/images/ceph-cluster-high-level-eng.png)
+
 ```
                     ┌─────────────────────────┐
                     │   Client Applications   │
@@ -54,6 +56,8 @@
 | **Kernel Parameters** | `vm.swappiness=1`, `net.ipv4.ip_forward=1` | Like tuning a car engine: Default settings work, but optimized settings give better performance. | Prevents memory swapping (slows down Ceph) and enables proper network routing. |
 
 ### 1.3 Network Architecture (Production Recommended)
+
+![Network Architecture](https://github.com/SumonPaul18/ceph-storage/blob/da6c21836787a7a6cce48f472056b19859aeebdd/src/images/multi-host-ceph-networking.png)
 
 ```
 ┌─────────────────────────────────────────┐
