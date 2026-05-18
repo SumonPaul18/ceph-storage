@@ -6,8 +6,8 @@
 
 
 > **Infrastructure Context**
-> - **OpenStack Node (All-in-One Kolla-Ansible)**: `192.168.68.69`
-> - **Ceph Cluster (3 Nodes)**: Primary/MON access via `192.168.68.248`
+> - **OpenStack Node (All-in-One Kolla-Ansible)**: `192.168.10.69`
+> - **Ceph Cluster (3 Nodes)**: Primary/MON access via `192.168.10.248`
 > - **Goal**: Connect OpenStack services (Glance, Cinder, Nova) to external Ceph RBD storage using official Kolla-Ansible and Ceph documentation workflows.
 
 ---
@@ -31,17 +31,17 @@ Think of this like preparing a kitchen before cooking a complex meal. You don't 
 | Requirement | Why It Matters | How to Verify |
 |-------------|---------------|---------------|
 | **Ceph Cluster Healthy** | OpenStack will fail to connect if Ceph is degraded or unreachable | `ceph -s` on any Ceph node → should show `HEALTH_OK` |
-| **Network Connectivity** | OpenStack node must reach Ceph MONs on port 6789 and OSDs on 6800-7300 | `telnet 192.168.68.248 6789` from OpenStack node |
+| **Network Connectivity** | OpenStack node must reach Ceph MONs on port 6789 and OSDs on 6800-7300 | `telnet 192.168.10.248 6789` from OpenStack node |
 | **Time Synchronization** | Cephx authentication fails if clocks drift > 300 seconds | `chronyc tracking` or `ntpstat` on all nodes |
 | **Root/Sudo Access** | Required for config file deployment and service restarts | `sudo -v` on both OpenStack and Ceph nodes |
-| **Kolla-Ansible Installed** | You're using Kolla to deploy OpenStack, so it must be ready | `kolla-ansible --version` on `192.168.68.69` |
+| **Kolla-Ansible Installed** | You're using Kolla to deploy OpenStack, so it must be ready | `kolla-ansible --version` on `192.168.10.69` |
 | **Ceph Client Packages** | OpenStack services need `ceph-common` and `python3-rbd` to talk to Ceph | Check availability via `apt search ceph-common` or `yum list ceph-common` |
 
 ### 1.2 Version Compatibility Check (Official Sources)
 Always verify versions against official compatibility matrices. Here's how to do it practically:
 
 
-#### On OpenStack node (192.168.68.69)
+#### On OpenStack node (192.168.10.69)
 #### Check Kolla-Ansible version
 ```
 kolla-ansible --version
@@ -52,7 +52,7 @@ kolla-ansible --version
 openstack --version
 ```
 
-#### On Ceph node (192.168.68.248)
+#### On Ceph node (192.168.10.248)
 #### Check Ceph version
 ```
 ceph -v
@@ -74,9 +74,9 @@ This is where you prepare the "storage backend" that OpenStack will consume. Thi
 Each OpenStack service gets its own pool for isolation and performance tuning.
 
 
-#### SSH to any Ceph monitor node (e.g., 192.168.68.248)
+#### SSH to any Ceph monitor node (e.g., 192.168.10.248)
 ```
-ssh admin@192.168.68.248
+ssh admin@192.168.10.248
 ```
 #### Create pools (adjust PG count based on your OSD count - use ceph pg calc tool)
 #### For a small 3-node cluster with ~10 OSDs total, 32 PGs per pool is safe
@@ -188,10 +188,10 @@ ceph auth get-key client.cinder > /tmp/ceph.client.cinder.keyring
 ceph auth get-key client.cinder-backup > /tmp/ceph.client.cinder-backup.keyring
 ceph auth get-key client.nova > /tmp/ceph.client.nova.keyring
 ```
-#### Copy files to OpenStack node (192.168.68.69)
+#### Copy files to OpenStack node (192.168.10.69)
 ```
-scp /tmp/ceph.conf admin@192.168.68.69:/tmp/
-scp /tmp/ceph.client.*.keyring admin@192.168.68.69:/tmp/
+scp /tmp/ceph.conf admin@192.168.10.69:/tmp/
+scp /tmp/ceph.client.*.keyring admin@192.168.10.69:/tmp/
 ```
 
 > ⚠️ **Critical Note**: The `ceph.conf` file must NOT have leading tabs. Kolla-Ansible uses an INI parser that breaks on tabs. Always sanitize with `sed` as shown above.
@@ -206,9 +206,9 @@ Now you configure the "client side" - your Kolla-Ansible deployment to consume t
 Kolla-Ansible uses `/etc/kolla/` for global configs and `/etc/kolla/config/<service>/` for service-specific overrides.
 
 
-#### On OpenStack node (192.168.68.69)
+#### On OpenStack node (192.168.10.69)
 ```
-ssh admin@192.168.68.69
+ssh admin@192.168.10.69
 ```
 #### Create required directories for Ceph config injection
 ```
@@ -286,14 +286,14 @@ Kolla-Ansible expects nodes in the `[storage]` group for Cinder services. If you
 ```ini
 # Edit your Kolla inventory file (e.g., /etc/kolla/inventory)
 [storage]
-192.168.68.69
+192.168.10.69
 
 # Ensure this node is also in [control] and [compute] for all-in-one
 [control]
-192.168.68.69
+192.168.10.69
 
 [compute]
-192.168.68.69
+192.168.10.69
 ```
 
 ### 3.4 Deploy Configuration with Kolla-Ansible
@@ -361,7 +361,7 @@ openstack image show cirros-ceph-test -c id -f value
 ```
 #### Then check Ceph RBD list (on Ceph node)
 ```
-ssh admin@192.168.68.248
+ssh admin@192.168.10.248
 rbd -p images ls
 ```
 #### You should see an RBD image matching the Glance image ID
@@ -455,7 +455,7 @@ openstack server add volume prod-vm data-volume
 ```
 #### 5. Verify all components in Ceph
 ```
-ssh admin@192.168.68.248
+ssh admin@192.168.10.248
 ```
 #### Should still show HEALTH_OK
 ```
@@ -551,8 +551,8 @@ ceph auth get-key client.cinder > /tmp/ceph.client.cinder.keyring.new
 ```
 #### Copy to OpenStack node and update Kolla config
 ```
-scp /tmp/ceph.client.cinder.keyring.new admin@192.168.68.69:/tmp/
-ssh admin@192.168.68.69
+scp /tmp/ceph.client.cinder.keyring.new admin@192.168.10.69:/tmp/
+ssh admin@192.168.10.69
 sudo cp /tmp/ceph.client.cinder.keyring.new /etc/kolla/config/cinder/cinder-volume/ceph.client.cinder.keyring
 sudo cp /tmp/ceph.client.cinder.keyring.new /etc/kolla/config/cinder/cinder-backup/ceph.client.cinder.keyring
 sudo cp /tmp/ceph.client.cinder.keyring.new /etc/kolla/config/nova/ceph.client.cinder.keyring
@@ -588,7 +588,7 @@ ceph osd df
 
 | Symptom | Likely Cause | Diagnostic Command | Fix |
 |---------|-------------|-------------------|-----|
-| `cinder create` hangs | Ceph MON unreachable from OpenStack node | `telnet 192.168.68.248 6789` from OpenStack node | Fix firewall rules; ensure `mon_host` in ceph.conf is reachable |
+| `cinder create` hangs | Ceph MON unreachable from OpenStack node | `telnet 192.168.10.248 6789` from OpenStack node | Fix firewall rules; ensure `mon_host` in ceph.conf is reachable |
 | Glance upload fails with "permission denied" | Keyring ownership or cephx caps wrong | `ceph auth get client.glance` | Recreate user with correct pool caps; ensure keyring file owned by `glance` user inside container |
 | Nova instance fails to boot from volume | Libvirt secret UUID mismatch | `virsh secret-list` on compute node | Re-define libvirt secret with correct UUID; ensure `rbd_secret_uuid` matches in nova.conf |
 | `kolla-ansible deploy` fails on cinder-volume | Missing `[storage]` group in inventory | Check `/etc/kolla/inventory` | Add OpenStack node to `[storage]` group |
@@ -598,7 +598,7 @@ ceph osd df
 When things go wrong, check these logs first:
 
 
-#### On OpenStack node (192.168.68.69)
+#### On OpenStack node (192.168.10.69)
 #### Glance logs (Ceph backend errors)
 ```
 docker logs glance_api  # or check /var/log/kolla/glance/
@@ -615,7 +615,7 @@ docker logs nova_compute
 ```
 docker exec -it cinder_volume ceph --id cinder -s
 ```
-#### On Ceph node (192.168.68.248)
+#### On Ceph node (192.168.10.248)
 #### Cluster health and recent events
 ```
 ceph -s
