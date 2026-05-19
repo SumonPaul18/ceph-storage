@@ -18,7 +18,7 @@
 3. [OpenStack Kolla-Ansible Side Configuration](#3-openstack-kolla-ansible-side-configuration)
 4. [Service-by-Service Integration: Glance, Cinder, Nova](#4-service-by-service-integration-glance-cinder-nova)
 5. [Verification & Testing Workflow](#5-verification--testing-workflow)
-6. [Operations & Usage](#6-operations---Usage)
+6. [Operations & Usage](#6-operations--&-Usage)
 7. [Troubleshooting & Maintenance Practices](#7-troubleshooting--maintenance-practices)
 
 ---
