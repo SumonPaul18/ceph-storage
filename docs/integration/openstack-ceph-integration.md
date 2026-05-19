@@ -576,8 +576,8 @@ ceph orch daemon add osd node4:/dev/sdb
 ceph -w
 ceph osd df
 ```
-# No OpenStack-side changes required!
-# New capacity is immediately available for volume/image creation
+> No OpenStack-side changes required!
+> New capacity is immediately available for volume/image creation
 
 
 ---
