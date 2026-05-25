@@ -22,11 +22,10 @@ In OpenStack, instances are typically launched using **SSH Key Pairs** and **Clo
 ### Step 1: Access the OpenStack Instance
 Log in to your OpenStack instance using your existing SSH key or via the Horizon Dashboard Console.
 
+**Connect to the VM using SSH Key**
 ```bash
-# SSH into the instance from your local machine or jump host
 ssh -i /path/to/your-key.pem ubuntu@<OPENSTACK_VM_IP>
 ```
-*   **Command:** `ssh -i /path/to/your-key.pem ubuntu@<OPENSTACK_VM_IP>`
 *   **Explanation:** Connects to the VM using the private key. Replace `ubuntu` with your specific user (e.g., `centos`, `root`).
 *   **Flags/Args:**
     *   `-i`: Specifies the identity file (private key).
@@ -35,14 +34,16 @@ ssh -i /path/to/your-key.pem ubuntu@<OPENSTACK_VM_IP>
 ### Step 2: Set a Root Password
 You need a strong password for the root user to ensure secure access after migration.
 
+**Switch to root user**
 ```bash
-# Switch to root user
 sudo -i
+```
+*   **Explanation:** Switches the current session to the root superuser account.
 
-# Set a new password for root
+**Set a new password for root**
+```bash
 passwd root
 ```
-*   **Command:** `passwd root`
 *   **Explanation:** Prompts you to enter and confirm a new password for the root account.
 *   **Flags/Args:**
     *   `root`: The user account to modify.
@@ -50,11 +51,10 @@ passwd root
 ### Step 3: Enable Password Authentication in SSHD
 By default, many cloud images disable password login. We must enable it.
 
+**Edit the SSH daemon configuration file**
 ```bash
-# Edit the SSH daemon configuration file
 nano /etc/ssh/sshd_config
 ```
-*   **Command:** `nano /etc/ssh/sshd_config`
 *   **Explanation:** Opens the SSH configuration file in the Nano text editor.
 *   **Flags/Args:**
     *   `/etc/ssh/sshd_config`: The path to the SSH daemon configuration file.
@@ -67,13 +67,10 @@ PasswordAuthentication yes
 PermitRootLogin yes
 ```
 
+**Restart the SSH service to apply changes**
 ```bash
-# Save and exit Nano (Ctrl+O, Enter, Ctrl+X)
-
-# Restart the SSH service to apply changes
 systemctl restart sshd
 ```
-*   **Command:** `systemctl restart sshd`
 *   **Explanation:** Restarts the SSH daemon so the new configuration takes effect immediately.
 *   **Flags/Args:**
     *   `restart`: Stops and starts the service.
@@ -82,11 +79,10 @@ systemctl restart sshd
 ### Step 4: Disable Cloud-Init (Optional but Recommended)
 To prevent Cloud-Init from resetting your network or SSH configs on the next boot in Proxmox, it is safer to disable it.
 
+**Create a file to disable cloud-init**
 ```bash
-# Create a file to disable cloud-init
 touch /etc/cloud/cloud-init.disabled
 ```
-*   **Command:** `touch /etc/cloud/cloud-init.disabled`
 *   **Explanation:** Creates an empty file that signals Cloud-Init to skip execution on boot.
 *   **Flags/Args:**
     *   `/etc/cloud/cloud-init.disabled`: The standard flag file for disabling cloud-init.
@@ -94,14 +90,16 @@ touch /etc/cloud/cloud-init.disabled
 ### Step 5: Verify Connectivity
 Before proceeding, test if you can log in with the password.
 
+**Exit the current session**
 ```bash
-# Exit the current session
 exit
+```
+*   **Explanation:** Logs out of the current SSH session or root shell.
 
-# Try logging in with password (from a new terminal)
+**Try logging in with password (from a new terminal)**
+```bash
 ssh root@<OPENSTACK_VM_IP>
 ```
-*   **Command:** `ssh root@<OPENSTACK_VM_IP>`
 *   **Explanation:** Tests if password authentication is working. You should be prompted for the password you set.
 
 ---
@@ -118,11 +116,10 @@ Now that the VM is prepared, we move to the **Ceph Cluster** node (or a client n
 ### Step 1: Verify Ceph Cluster Health
 Always check the cluster health before performing I/O intensive operations.
 
+**Check Ceph cluster status**
 ```bash
-# Check Ceph cluster status
 ceph -s
 ```
-*   **Command:** `ceph -s`
 *   **Explanation:** Displays the overall health of the Ceph cluster. Ensure it says `HEALTH_OK`.
 *   **Flags/Args:**
     *   `-s`: Short status output.
@@ -135,28 +132,24 @@ OpenStack uses specific pools for different types of storage.
 
 Since you are migrating a running instance's disk, it is likely in the `vms` pool.
 
+**List images in the 'vms' pool**
 ```bash
-# List images in the 'vms' pool
 rbd ls vms
 ```
-*   **Command:** `rbd ls vms`
 *   **Explanation:** Lists all RBD images in the `vms` pool. Look for the UUID of your instance.
 *   **Flags/Args:**
     *   `vms`: The name of the Ceph pool.
 
+**List images in the 'volumes' pool (if using Cinder boot)**
 ```bash
-# List images in the 'volumes' pool (if using Cinder boot)
 rbd ls volumes
 ```
-*   **Command:** `rbd ls volumes`
 *   **Explanation:** Checks the `volumes` pool if your instance was booted from a Cinder volume.
 
+**Get detailed info about the specific image**
 ```bash
-# Get detailed info about the specific image
-# Replace <UUID>_disk with your actual image name
 rbd info vms/4d73b7d5-41e6-4475-931a-1d59d53b6a44_disk
 ```
-*   **Command:** `rbd info vms/4d73b7d5-41e6-4475-931a-1d59d53b6a44_disk`
 *   **Explanation:** Shows the size, format, and features of the RBD image. Verify the size matches your expectation.
 *   **Flags/Args:**
     *   `vms/...`: The pool and image name.
@@ -164,11 +157,10 @@ rbd info vms/4d73b7d5-41e6-4475-931a-1d59d53b6a44_disk
 ### Step 3: Prepare Backup Directory
 Create a dedicated directory for the backup to keep things organized.
 
+**Create a backup directory**
 ```bash
-# Create a backup directory
 mkdir -p /backup
 ```
-*   **Command:** `mkdir -p /backup`
 *   **Explanation:** Creates the `/backup` directory. `-p` ensures no error if it already exists.
 *   **Flags/Args:**
     *   `-p`: Parents; creates intermediate directories as needed.
@@ -181,11 +173,10 @@ We will export the RBD image to a local file. We have two options: export direct
 
 ### Option A: Direct Export to Backup Directory (Recommended for Space Efficiency)
 
+**Export the RBD image to a raw file in /backup**
 ```bash
-# Export the RBD image to a raw file in /backup
 rbd export vms/4d73b7d5-41e6-4475-931a-1d59d53b6a44_disk /backup/instance-backup.raw
 ```
-*   **Command:** `rbd export vms/... /backup/instance-backup.raw`
 *   **Explanation:** Reads the data from the Ceph RBD image and writes it to a local raw file. This file will be the same size as the virtual disk (e.g., 20GB).
 *   **Flags/Args:**
     *   `vms/...`: Source RBD image.
@@ -193,18 +184,16 @@ rbd export vms/4d73b7d5-41e6-4475-931a-1d59d53b6a44_disk /backup/instance-backup
 
 ### Option B: Export to Temp and Move (If /backup is on a slower disk)
 
+**Export to /tmp (usually faster local SSD)**
 ```bash
-# Export to /tmp (usually faster local SSD)
 rbd export vms/4d73b7d5-41e6-4475-931a-1d59d53b6a44_disk /tmp/instance.raw
 ```
-*   **Command:** `rbd export vms/... /tmp/instance.raw`
 *   **Explanation:** Exports the image to `/tmp`. Useful if `/tmp` is on a high-speed NVMe drive.
 
+**Verify the file exists and check size**
 ```bash
-# Verify the file exists and check size
 ls -lh /tmp/instance.raw
 ```
-*   **Command:** `ls -lh /tmp/instance.raw`
 *   **Explanation:** Lists the file with human-readable size.
 *   **Flags/Args:**
     *   `-l`: Long listing format.
@@ -218,11 +207,10 @@ Raw files are large and inefficient for transfer. We convert them to **QCOW2** (
 
 ### Step 1: Convert Raw to QCOW2 with Compression
 
+**Convert raw image to compressed QCOW2**
 ```bash
-# Convert raw image to compressed QCOW2
 qemu-img convert -f raw -O qcow2 -p -c /tmp/instance.raw /backup/instance.qcow2
 ```
-*   **Command:** `qemu-img convert -f raw -O qcow2 -p -c /tmp/instance.raw /backup/instance.qcow2`
 *   **Explanation:** Converts the raw disk image to QCOW2 format.
 *   **Flags/Args:**
     *   `-f raw`: Specifies the input format is RAW.
@@ -234,20 +222,18 @@ qemu-img convert -f raw -O qcow2 -p -c /tmp/instance.raw /backup/instance.qcow2
 
 ### Step 2: Verify the Converted Image
 
+**Check the new QCOW2 file details**
 ```bash
-# Check the new QCOW2 file details
 qemu-img info /backup/instance.qcow2
 ```
-*   **Command:** `qemu-img info /backup/instance.qcow2`
 *   **Explanation:** Displays information about the QCOW2 file, including virtual size, disk size (actual usage), and cluster size.
 *   **Flags/Args:**
     *   `/backup/instance.qcow2`: Path to the image file.
 
+**Compare file sizes**
 ```bash
-# Compare file sizes
 ls -lh /backup/instance-backup.raw /backup/instance.qcow2
 ```
-*   **Command:** `ls -lh /backup/instance-backup.raw /backup/instance.qcow2`
 *   **Explanation:** Shows both files side-by-side. You will notice `instance.qcow2` is much smaller due to compression and thin provisioning.
 
 ---
@@ -259,11 +245,11 @@ Now we move the `instance.qcow2` file to your Proxmox VE server. You can use `sc
 ### Step 1: Upload Image to Proxmox VE
 
 **Method A: Using SCP (Command Line)**
+
+**Copy the QCOW2 file to the Proxmox host**
 ```bash
-# Copy the QCOW2 file to the Proxmox host
 scp /backup/instance.qcow2 root@<PROXMOX_IP>:/var/lib/vz/images/
 ```
-*   **Command:** `scp /backup/instance.qcow2 root@<PROXMOX_IP>:/var/lib/vz/images/`
 *   **Explanation:** Securely copies the file to the Proxmox local storage directory.
 *   **Flags/Args:**
     *   `root@<PROXMOX_IP>`: Root user on the Proxmox host.
@@ -315,12 +301,10 @@ Now we attach the uploaded QCOW2 file to the VM.
 8.  Now, go to **Shell** of the Proxmox Node (not the VM).
 9.  Run the following command to import the disk:
 
+**Import the disk image to the VM**
 ```bash
-# Import the disk image to the VM
-# Replace 101 with your VM ID
 qm importdisk 101 /var/lib/vz/images/instance.qcow2 local-lvm --format qcow2
 ```
-*   **Command:** `qm importdisk 101 /var/lib/vz/images/instance.qcow2 local-lvm --format qcow2`
 *   **Explanation:** Imports the QCOW2 file into the Proxmox storage and attaches it to VM 101 as an unused disk.
 *   **Flags/Args:**
     *   `101`: The VM ID.
@@ -347,30 +331,26 @@ When you start the VM, it will likely fail to get an IP address because the netw
 
 ### Step 2: Identify the New Network Interface
 
+**List all network interfaces**
 ```bash
-# List all network interfaces
 ip addr show
 ```
-*   **Command:** `ip addr show`
 *   **Explanation:** Displays all network interfaces and their IP addresses. Look for an interface that is `UP` but has no IP, or check `dmesg | grep eth` to see detected interfaces.
-*   **Flags/Args:** None.
 
 ### Step 3: Configure Static IP (Ubuntu/Netplan Example)
 
 Most modern Ubuntu versions use Netplan.
 
+**List netplan configuration files**
 ```bash
-# List netplan configuration files
 ls /etc/netplan/
 ```
-*   **Command:** `ls /etc/netplan/`
 *   **Explanation:** Shows the YAML configuration files for networking.
 
+**Edit the netplan config (replace filename with yours)**
 ```bash
-# Edit the netplan config (replace filename with yours)
 nano /etc/netplan/00-installer-config.yaml
 ```
-*   **Command:** `nano /etc/netplan/00-installer-config.yaml`
 *   **Explanation:** Opens the network configuration file.
 
 **Update the file content:**
@@ -389,24 +369,24 @@ network:
           - 1.1.1.1
 ```
 
+**Apply the new network configuration**
 ```bash
-# Apply the new network configuration
 netplan apply
 ```
-*   **Command:** `netplan apply`
 *   **Explanation:** Applies the new network settings immediately.
-*   **Flags/Args:** None.
 
 ### Step 4: Configure Static IP (CentOS/RHEL Example)
 
+**Navigate to network scripts**
 ```bash
-# Navigate to network scripts
 cd /etc/sysconfig/network-scripts/
+```
+*   **Explanation:** Changes directory to where network configuration files are stored in RHEL/CentOS.
 
-# Edit the interface config (replace ifcfg-ens18 with your interface)
+**Edit the interface config (replace ifcfg-ens18 with your interface)**
+```bash
 nano ifcfg-ens18
 ```
-*   **Command:** `nano ifcfg-ens18`
 *   **Explanation:** Edits the interface configuration file.
 
 **Update the file content:**
@@ -420,23 +400,26 @@ GATEWAY=192.168.1.1
 DNS1=8.8.8.8
 ```
 
+**Restart network service**
 ```bash
-# Restart network service
 systemctl restart network
 ```
-*   **Command:** `systemctl restart network`
 *   **Explanation:** Restarts the network service to apply changes.
 
 ### Step 5: Verify Connectivity
 
+**Ping the gateway**
 ```bash
-# Ping the gateway
 ping -c 4 192.168.1.1
+```
+*   **Explanation:** Tests connectivity to the local gateway.
+*   **Flags/Args:**
+    *   `-c 4`: Sends 4 packets and stops.
 
-# Ping an external site
+**Ping an external site**
+```bash
 ping -c 4 google.com
 ```
-*   **Command:** `ping -c 4 google.com`
 *   **Explanation:** Tests internet connectivity.
 *   **Flags/Args:**
     *   `-c 4`: Sends 4 packets and stops.
@@ -449,14 +432,16 @@ ping -c 4 google.com
 
 Check if your application services (Apache, Nginx, MySQL, etc.) are running.
 
+**Check status of all services**
 ```bash
-# Check status of all services
 systemctl list-units --type=service --state=running
+```
+*   **Explanation:** Lists all currently active and running services.
 
-# Check specific service (e.g., apache2)
+**Check specific service (e.g., apache2)**
+```bash
 systemctl status apache2
 ```
-*   **Command:** `systemctl status apache2`
 *   **Explanation:** Shows the status of the Apache web server.
 *   **Flags/Args:**
     *   `apache2`: Name of the service.
@@ -465,14 +450,19 @@ systemctl status apache2
 
 For better integration with Proxmox (shutdown, freeze, IP reporting), install the guest agent.
 
+**Install qemu-guest-agent**
 ```bash
-# Install qemu-guest-agent
 apt update && apt install -y qemu-guest-agent
+```
+*   **Explanation:** Updates package lists and installs the QEMU Guest Agent package.
+*   **Flags/Args:**
+    *   `update`: Refreshes package index.
+    *   `install -y`: Installs the package without prompting for confirmation.
 
-# Enable and start the service
+**Enable and start the service**
+```bash
 systemctl enable --now qemu-guest-agent
 ```
-*   **Command:** `systemctl enable --now qemu-guest-agent`
 *   **Explanation:** Ensures the agent starts on boot and runs now.
 
 **In Proxmox Web UI:**
@@ -484,28 +474,30 @@ systemctl enable --now qemu-guest-agent
 
 Once the migration is verified and successful, clean up the temporary files on the Ceph cluster and Proxmox host.
 
+**Remove raw backup file from Ceph node**
 ```bash
-# Remove raw backup file from Ceph node
 rm /backup/instance-backup.raw
+```
+*   **Explanation:** Deletes the large raw backup file to free up space.
 
-# Remove temporary raw file
+**Remove temporary raw file**
+```bash
 rm /tmp/instance.raw
+```
+*   **Explanation:** Deletes the temporary raw file if Option B was used.
 
-# Remove the uploaded QCOW2 from Proxmox if no longer needed as a template
+**Remove the uploaded QCOW2 from Proxmox if no longer needed as a template**
+```bash
 rm /var/lib/vz/images/instance.qcow2
 ```
-*   **Command:** `rm /backup/instance-backup.raw`
-*   **Explanation:** Deletes the large raw backup file to free up space.
-*   **Flags/Args:**
-    *   `/backup/instance-backup.raw`: File to delete.
+*   **Explanation:** Deletes the source QCOW2 file from Proxmox storage after successful import.
 
 ### Step 4: Final Verification in Proxmox
 
+**Check VM status from Proxmox shell**
 ```bash
-# Check VM status from Proxmox shell
 qm status 101
 ```
-*   **Command:** `qm status 101`
 *   **Explanation:** Confirms the VM is running.
 *   **Flags/Args:**
     *   `101`: VM ID.
