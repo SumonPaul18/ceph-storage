@@ -4,9 +4,9 @@
 
 1.  [Prerequisites & Environment Setup](#1-prerequisites--environment-setup)
 2.  [Phase 1: Pre-Migration Preparation](#2-phase-1-pre-migration-preparation-openStack-side)
-3.  [Phase 2: Data Export from Ceph Cluster]()
-4.  [Phase 3: Image Transfer & Optimization](#3-Phase-2-Data-Export-from-Ceph-Cluster)
-5.  **Phase 4: VM Creation & Disk Import in Proxmox VE**
+3.  [Phase 2: Data Export from Ceph Cluster](#3-Phase-2-Data-Export-from-Ceph-Cluster)
+4.  [Phase 3: Image Transfer & Optimization](#4-Phase-3-Image-Transfer--Optimization)
+5.  [Phase 4: VM Creation & Disk Import in Proxmox VE](#5-Phase-4-VM-Creation--Disk-Import-in-Proxmox-VE)
 6.  **Phase 5: Post-Migration Configuration & Network Setup**
 7.  **Phase 6: Disaster Recovery Testing (Backup/Delete/Restore)**
 8.  **Maintenance, Cleanup & Best Practices**
