@@ -8,7 +8,7 @@
 4.  [Phase 3: Image Transfer & Optimization](#4-Phase-3-Image-Transfer--Optimization)
 5.  [Phase 4: VM Creation & Disk Import in Proxmox VE](#5-Phase-4-VM-Creation--Disk-Import-in-Proxmox-VE)
 6.  [Phase 5: Post-Migration Configuration & Network Setup](#6-Phase-5-Post-Migration-Configuration--Network-Setup)
-7.  [Phase 6: Disaster Recovery Testing (Backup/Delete/Restore)](#7-Phase-6-Disaster-Recovery-Testing--Backup-Delete-Restore-)
+7.  [Phase 6: Disaster Recovery Testing (Backup/Delete/Restore)](#7-phase-6-disaster-recovery-testing-backupdeleterestore)
 8.  [Maintenance, Cleanup & Best Practices](#8-Maintenance-Cleanup--Best-Practices)
 
 ---
