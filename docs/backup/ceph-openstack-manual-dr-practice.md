@@ -58,30 +58,30 @@ Before executing any commands, ensure your environment meets the following requi
 ### Checking Tool Versions
 Ensure your tools are up-to-date and compatible with your OpenStack/Ceph version.
 
+**Check OpenStack Client Version**
+Ensures compatibility with your OpenStack Cloud
 ```bash
-# Check OpenStack Client Version
-# Ensures compatibility with your OpenStack Cloud
 openstack --version
 ```
 
+**Check Ceph Version**
+Verifies the Ceph cluster version you are interacting with
 ```bash
-# Check Ceph Version
-# Verifies the Ceph cluster version you are interacting with
 ceph --version
 ```
 
+**Check RBD Tool Version**
+Ensures rbd command supports required flags like --progress
 ```bash
-# Check RBD Tool Version
-# Ensures rbd command supports required flags like --progress
 rbd --version
 ```
 
 ### Sourcing OpenStack Credentials
 You must source the `admin-openrc.sh` or your user-specific openrc file to interact with the OpenStack API.
 
+**Source the admin credentials**
+Replace with the actual path to your openrc file
 ```bash
-# Source the admin credentials
-# Replace with the actual path to your openrc file
 source /etc/kolla/admin-openrc.sh
 ```
 
@@ -99,75 +99,55 @@ OpenStack Cinder creates a volume, which translates to an RBD image in a specifi
 #### 1. Identify the Target Instance
 Get the details of the instance you want to back up.
 
+**List all servers to find your target instance name or ID**
+Look for the 'Name' and 'ID' columns
 ```bash
-# List all servers to find your target instance name or ID
-# Look for the 'Name' and 'ID' columns
 openstack server list
 ```
-
-**Command Details:**
-*   `openstack server list`: Fetches a list of all compute instances.
-*   **Output:** Provides UUIDs and Names. Note the `<INSTANCE_NAME>` or `<INSTANCE_ID>`.
 
 #### 2. Get Attached Volume ID
 Instances may have multiple volumes. We need the ID of the root volume or the specific data volume.
 
+**Show detailed info of the instance, specifically attached volumes**
+Replace `<INSTANCE_NAME>` with your actual instance name
 ```bash
-# Show detailed info of the instance, specifically attached volumes
-# Replace <INSTANCE_NAME> with your actual instance name
 openstack server show <INSTANCE_NAME> -c volumes_attached
 ```
-
-**Command Details:**
-*   `server show`: Displays detailed attributes of a specific server.
-*   `-c volumes_attached`: Filters output to show only the attached volume IDs.
-*   **Output:** Looks like `[{'id': 'volume-uuid-here'}]`. Copy the `volume-uuid-here`.
 
 #### 3. Verify Volume Details in Cinder
 Confirm the volume status and size before proceeding.
 
+**Show volume details using the Volume ID obtained above**
+Replace `<VOLUME_ID>` with the actual UUID
 ```bash
-# Show volume details using the Volume ID obtained above
-# Replace <VOLUME_ID> with the actual UUID
 openstack volume show <VOLUME_ID> -c size -c status -c name
 ```
-
-**Command Details:**
-*   `volume show`: Displays Cinder volume metadata.
-*   `-c size`: Shows the size in GB. Important for restore later.
-*   `-c status`: Must be `in-use` or `available`.
-*   **Note:** Ensure the status is not `error` or `deleting`.
 
 #### 4. Map to Ceph RBD Image
 In Kolla-Ansible, the RBD image name usually matches the Cinder Volume ID with a prefix `volume-`. The pool name is typically `volumes`.
 
+**Define variables for easier scripting (Optional but recommended)**
+Set environment variables for Pool, Image, and Volume ID
 ```bash
-# Define variables for easier scripting (Optional but recommended)
 export VOLUME_ID="<VOLUME_ID>"
 export CEPH_POOL="volumes"
 export RBD_IMAGE="volume-${VOLUME_ID}"
-
-# Check if the RBD image exists in the Ceph pool
-# This command lists all images in the pool and filters for your volume
-rbd ls ${CEPH_POOL} | grep ${VOLUME_ID}
 ```
 
-**Command Details:**
-*   `rbd ls ${CEPH_POOL}`: Lists all RBD images in the specified pool.
-*   `grep ${VOLUME_ID}`: Filters the list to find your specific volume.
-*   **Expected Output:** Should return `volume-<UUID>`. If empty, check if the pool name is different (e.g., `cinder-volumes`).
+**Check if the RBD image exists in the Ceph pool**
+This command lists all images in the pool and filters for your volume
+```bash
+rbd ls ${CEPH_POOL} | grep ${VOLUME_ID}
+```
 
 #### 5. Inspect RBD Image Metadata
 Verify the image format and size at the Ceph level.
 
+**Get detailed info about the RBD image**
+Displays metadata like size, format (v1/v2), and features
 ```bash
-# Get detailed info about the RBD image
 rbd info ${CEPH_POOL}/${RBD_IMAGE}
 ```
-
-**Command Details:**
-*   `rbd info`: Displays metadata like size, format (v1/v2), and features.
-*   **Key Info:** Note the `size` in MB/GB to ensure it matches the OpenStack volume size.
 
 ---
 
@@ -184,77 +164,66 @@ Directly exporting a live RBD image can lead to data corruption if the VM is wri
 #### 1. Create a Backup Directory
 Organize your backups to avoid clutter.
 
+**Create a directory for storing backups**
+Creates the folder and navigates into it
 ```bash
-# Create a directory for storing backups
 mkdir -p /root/ceph-dr-backups
-
-# Navigate to the directory
 cd /root/ceph-dr-backups
 ```
 
 #### 2. Create an RBD Snapshot
 Take a snapshot of the live volume.
 
+**Define a unique snapshot name using timestamp**
+Generates a dynamic name based on current date/time
 ```bash
-# Define a unique snapshot name using timestamp
 export SNAP_NAME="dr-snap-$(date +%Y%m%d-%H%M%S)"
-
-# Create the snapshot
-# Syntax: rbd snap create <pool>/<image>@<snap-name>
-rbd snap create ${CEPH_POOL}/${RBD_IMAGE}@${SNAP_NAME}
 ```
 
-**Command Details:**
-*   `rbd snap create`: Creates a new snapshot.
-*   `${CEPH_POOL}/${RBD_IMAGE}@${SNAP_NAME}`: Specifies the target image and the new snapshot name.
-*   **Note:** This operation is instantaneous and does not impact VM performance significantly.
+**Create the snapshot**
+Syntax: `rbd snap create <pool>/<image>@<snap-name>`
+```bash
+rbd snap create ${CEPH_POOL}/${RBD_IMAGE}@${SNAP_NAME}
+```
 
 #### 3. Verify Snapshot Creation
 Ensure the snapshot exists before exporting.
 
+**List all snapshots for the specific RBD image**
+Shows all snapshots associated with the image
 ```bash
-# List all snapshots for the specific RBD image
 rbd snap list ${CEPH_POOL}/${RBD_IMAGE}
 ```
-
-**Command Details:**
-*   `rbd snap list`: Shows all snapshots associated with the image.
-*   **Expected Output:** You should see `${SNAP_NAME}` in the list with a timestamp.
 
 #### 4. Export Snapshot to Local File
 Copy the snapshot data to a local `.img` file. This file is your portable backup.
 
+**Define the backup file path**
+Sets the destination path for the exported image
 ```bash
-# Define the backup file path
 export BACKUP_FILE="/root/ceph-dr-backups/${RBD_IMAGE}.img"
-
-# Export the snapshot to the local file
-# Using --progress flag to see transfer status (if supported by your Ceph version)
-rbd export ${CEPH_POOL}/${RBD_IMAGE}@${SNAP_NAME} ${BACKUP_FILE} --progress
 ```
 
-**Command Details:**
-*   `rbd export`: Reads data from the Ceph cluster and writes it to a local file.
-*   `${CEPH_POOL}/${RBD_IMAGE}@${SNAP_NAME}`: Source (the snapshot).
-*   `${BACKUP_FILE}`: Destination (local file path).
-*   `--progress`: Displays a progress bar. Remove if your Ceph version throws an error.
-*   **Time:** This takes time proportional to the disk size and network speed. Do not interrupt.
+**Export the snapshot to the local file**
+Using `--progress` flag to see transfer status (if supported by your Ceph version)
+```bash
+rbd export ${CEPH_POOL}/${RBD_IMAGE}@${SNAP_NAME} ${BACKUP_FILE} --progress
+```
 
 #### 5. Verify Backup File Integrity
 Check if the file was created correctly and inspect its format.
 
+**Check file size and existence**
+Human-readable file size. Ensure it matches the expected volume size
 ```bash
-# Check file size and existence
 ls -lh ${BACKUP_FILE}
-
-# Inspect the disk image format and virtual size
-qemu-img info ${BACKUP_FILE}
 ```
 
-**Command Details:**
-*   `ls -lh`: Human-readable file size. Ensure it matches the expected volume size.
-*   `qemu-img info`: Shows the virtual size, disk size, and format (usually `raw`).
-*   **Validation:** The `virtual size` in `qemu-img` output must match the `size` from `rbd info`.
+**Inspect the disk image format and virtual size**
+Shows the virtual size, disk size, and format (usually `raw`)
+```bash
+qemu-img info ${BACKUP_FILE}
+```
 
 ---
 
@@ -270,35 +239,25 @@ Deleting the RBD image from Ceph removes the actual data blocks. OpenStack Nova/
 #### 1. Delete the RBD Image
 Remove the active image from the Ceph pool.
 
+**WARNING: This deletes the live data. Ensure backup is complete.**
+Delete the RBD image permanently
 ```bash
-# WARNING: This deletes the live data. Ensure backup is complete.
-# Delete the RBD image
 rbd rm ${CEPH_POOL}/${RBD_IMAGE}
 ```
-
-**Command Details:**
-*   `rbd rm`: Permanently removes the RBD image from the pool.
-*   **Risk:** Irreversible without backup.
 
 #### 2. Confirm Deletion
 Verify that the image no longer exists in Ceph.
 
+**Try to list the image again**
+Should return empty output
 ```bash
-# Try to list the image again
 rbd ls ${CEPH_POOL} | grep ${VOLUME_ID}
-
-# Or try to get info (should fail)
-rbd info ${CEPH_POOL}/${RBD_IMAGE}
 ```
 
-**Command Details:**
-*   **Expected Output:** `rbd ls` should return nothing. `rbd info` should return `Error: rbd: error opening image ... No such file or directory`.
-
-#### 3. Clean Up Snapshot (Optional)
-Since the main image is deleted, the snapshot is also gone. But if you had kept the main image and only wanted to test snapshot deletion, you would use:
+**Or try to get info (should fail)**
+Should return "No such file or directory" error
 ```bash
-# Not needed here as parent image is deleted, but for reference:
-# rbd snap rm ${CEPH_POOL}/${RBD_IMAGE}@${SNAP_NAME}
+rbd info ${CEPH_POOL}/${RBD_IMAGE}
 ```
 
 ---
@@ -315,37 +274,29 @@ Nova computes rely on Libvirt/QEMU to access the RBD device. If the device disap
 #### 1. Check Instance Status
 Observe how OpenStack reports the instance state.
 
+**Check the status of the instance**
+Likely shows `ERROR`, `SHUTOFF`, or remains `ACTIVE` temporarily until next heartbeat
 ```bash
-# Check the status of the instance
 openstack server show <INSTANCE_NAME> -c status -c fault
 ```
-
-**Command Details:**
-*   `-c status`: Likely shows `ERROR`, `SHUTOFF`, or remains `ACTIVE` temporarily until next heartbeat.
-*   `-c fault`: Shows error messages if the status is `ERROR`.
 
 #### 2. Check Console Logs
 Look for I/O errors in the guest OS logs.
 
+**Retrieve the last 20 lines of the console log**
+Look for kernel panic or I/O errors
 ```bash
-# Retrieve the last 20 lines of the console log
 openstack console log show <INSTANCE_NAME> | tail -n 20
 ```
-
-**Command Details:**
-*   **Expected Output:** Messages like `I/O error`, `end_request: I/O error, dev vda`, or `Kernel panic - not syncing: Attempted to kill init!`.
-*   **Interpretation:** This confirms the VM has lost its root disk.
 
 #### 3. Attempt SSH (Should Fail)
 Try to connect to the instance to confirm unreachability.
 
+**Replace with your actual Floating IP or Username**
+Connection should time out or be refused
 ```bash
-# Replace with your actual Floating IP or Username
 ssh cirros@<FLOATING_IP>
 ```
-
-**Command Details:**
-*   **Expected Output:** `Connection timed out` or `Connection refused`.
 
 ---
 
@@ -362,59 +313,50 @@ To recover, we must recreate the RBD image and import the data from our backup f
 #### 1. Determine Disk Size
 We need the exact size to create the new image. Check the backup file info again.
 
+**Get the virtual size from the backup file**
+Note the size in MB or GB (e.g., 20 GiB)
 ```bash
-# Get the virtual size from the backup file
 qemu-img info ${BACKUP_FILE} | grep "virtual size"
 ```
-
-**Command Details:**
-*   **Output Example:** `virtual size: 20 GiB (21474836480 bytes)`
-*   **Action:** Note the size in MB or GB. Let's assume **20 GB**.
 
 #### 2. Create New Empty RBD Image
 Create a placeholder image in the Ceph pool.
 
+**Define size in MB (e.g., 20 GB = 20480 MB)**
+Adjust this value based on the output from the previous step
 ```bash
-# Define size in MB (e.g., 20 GB = 20480 MB)
 export DISK_SIZE_MB=20480
-
-# Create the new RBD image
-# --image-format 2 is standard for modern Ceph/OpenStack
-rbd create ${CEPH_POOL}/${RBD_IMAGE} --size ${DISK_SIZE_MB} --image-format 2
 ```
 
-**Command Details:**
-*   `rbd create`: Creates a new blank RBD image.
-*   `--size`: Size in Megabytes.
-*   `--image-format 2`: Ensures compatibility with features like layering and exclusive-lock.
-*   **Note:** If you get a "File Exists" error, ensure the old image was fully deleted. Use `rbd trash purge` if necessary.
+**Create the new RBD image**
+`--image-format 2` is standard for modern Ceph/OpenStack
+```bash
+rbd create ${CEPH_POOL}/${RBD_IMAGE} --size ${DISK_SIZE_MB} --image-format 2
+```
 
 #### 3. Import Backup Data
 Write the backup file content into the new RBD image.
 
+**Import the local backup file into the new RBD image**
+Reads the local file and writes it block-by-block to Ceph
 ```bash
-# Import the local backup file into the new RBD image
 rbd import ${BACKUP_FILE} ${CEPH_POOL}/${RBD_IMAGE} --progress
 ```
-
-**Command Details:**
-*   `rbd import`: Reads the local file and writes it block-by-block to Ceph.
-*   `--progress`: Shows progress.
-*   **Time:** This is write-intensive and may take longer than export depending on OSD performance.
 
 #### 4. Verify Restored Image
 Confirm the image is back and has the correct size.
 
+**Check image info**
+Validation: The size and format should match the original
 ```bash
-# Check image info
 rbd info ${CEPH_POOL}/${RBD_IMAGE}
-
-# Check if it appears in the pool list
-rbd ls ${CEPH_POOL} | grep ${VOLUME_ID}
 ```
 
-**Command Details:**
-*   **Validation:** The size and format should match the original.
+**Check if it appears in the pool list**
+Confirms the image is visible in the pool
+```bash
+rbd ls ${CEPH_POOL} | grep ${VOLUME_ID}
+```
 
 ---
 
@@ -430,51 +372,38 @@ We need to force OpenStack to re-evaluate the volume attachment. The safest way 
 #### 1. Detach Volume from Instance
 Forcefully remove the volume record from the instance.
 
+**Detach the volume**
+Replace `<INSTANCE_NAME>` and `<VOLUME_ID>` with actual values
 ```bash
-# Detach the volume
-# Replace <INSTANCE_NAME> and <VOLUME_ID>
 openstack server remove volume <INSTANCE_NAME> <VOLUME_ID>
 ```
-
-**Command Details:**
-*   `server remove volume`: Tells Nova to detach the block device.
-*   **Note:** Since the VM is already crashed, this updates the database state.
 
 #### 2. Attach Volume Back to Instance
 Re-attach the now-restored volume.
 
+**Attach the volume back**
+Maps the Cinder volume back to the Nova instance
 ```bash
-# Attach the volume back
 openstack server add volume <INSTANCE_NAME> <VOLUME_ID>
 ```
-
-**Command Details:**
-*   `server add volume`: Maps the Cinder volume back to the Nova instance.
-*   **Result:** Nova updates Libvirt configuration to point to the restored RBD image.
 
 #### 3. Hard Reboot the Instance
 Restart the VM to force the Guest OS to re-detect the disk and boot.
 
+**Perform a hard reboot (power cycle)**
+Simulates pulling the power plug and turning it back on
 ```bash
-# Perform a hard reboot (power cycle)
 openstack server reboot <INSTANCE_NAME> --hard
 ```
-
-**Command Details:**
-*   `--hard`: Simulates pulling the power plug and turning it back on. Essential for recovering from kernel panics or I/O errors.
-*   **Wait:** Give it 2-3 minutes to boot.
 
 #### 4. Monitor Boot Status
 Watch the instance state transition.
 
+**Watch the status change**
+Expected Flow: `REBOOT` -> `BUILD` -> `ACTIVE`
 ```bash
-# Watch the status change
 watch -n 5 openstack server show <INSTANCE_NAME> -c status
 ```
-
-**Command Details:**
-*   **Expected Flow:** `REBOOT` -> `BUILD` -> `ACTIVE`.
-*   If it goes to `ERROR`, check `openstack server fault show <INSTANCE_ID>`.
 
 ---
 
@@ -487,41 +416,44 @@ The ultimate test: Is the data intact?
 #### 1. Check Console Log for Successful Boot
 Ensure the OS booted without kernel panics.
 
+**Check the end of the console log for login prompt**
+Look for systemd startup messages completing
 ```bash
-# Check the end of the console log for login prompt
 openstack console log show <INSTANCE_NAME> | tail -n 10
 ```
-
-**Command Details:**
-*   **Expected Output:** `login:` prompt or systemd startup messages completing.
 
 #### 2. SSH into the Instance
 Connect to the VM.
 
+**SSH into the instance**
+Use the floating IP assigned to the instance
 ```bash
-# SSH into the instance
 ssh cirros@<FLOATING_IP>
 ```
 
 #### 3. Verify Data Integrity
 Check if the files you created before the disaster are present.
 
+**Inside the VM: List home directory**
+Verify user files exist
 ```bash
-# Inside the VM:
-# List home directory
 ls -l /home/cirros/
+```
 
-# Check disk usage
+**Inside the VM: Check disk usage**
+Ensure filesystem is mounted and readable
+```bash
 df -h /
+```
 
-# If you created a test file earlier, cat it
+**Inside the VM: Check specific test file**
+If you created a test file earlier, cat it to verify content
+```bash
 cat /home/cirros/test-data.txt
 ```
 
-**Command Details:**
-*   **Success Criteria:** The file content matches what was there before the deletion. The filesystem is mounted read-write.
-
-#### 4. Exit VM
+**Exit VM**
+Return to the host terminal
 ```bash
 exit
 ```
@@ -545,11 +477,15 @@ Use the native OpenStack backup service. It integrates with Ceph Object Gateway 
 2.  Set backend to `ceph`.
 3.  Use `openstack volume backup create`.
 
+**Production Backup Command**
+Creates a backup via Cinder API
 ```bash
-# Production Backup Command
 openstack volume backup create --name prod-backup-01 --force <VOLUME_ID>
+```
 
-# Production Restore Command
+**Production Restore Command**
+Restores backup to a new or existing volume
+```bash
 openstack volume backup restore <BACKUP_ID> <NEW_VOLUME_ID>
 ```
 
@@ -570,11 +506,15 @@ For high availability across two data centers.
 ### Strategy 3: Snapshot-Based Cloning
 For quick testing or non-critical DR.
 
+**Create Snapshot**
+Takes a Cinder-level snapshot
 ```bash
-# Create Snapshot
 openstack volume snapshot create --volume <VOLUME_ID> snap-01
+```
 
-# Create Volume from Snapshot
+**Create Volume from Snapshot**
+Creates a new volume from the snapshot
+```bash
 openstack volume create --snapshot snap-01 restored-vol-01
 ```
 
@@ -587,8 +527,9 @@ openstack volume create --snapshot snap-01 restored-vol-01
 **Solution:**
 Ensure you are using the admin keyring. In Kolla, run commands inside the `ceph_mon` or `kolla_toolbox` container.
 
+**Run inside kolla_toolbox**
+Executes shell inside the toolbox container and sets Ceph args
 ```bash
-# Run inside kolla_toolbox
 docker exec -it kolla_toolbox bash
 export CEPH_ARGS="--conf /etc/ceph/ceph.conf --keyring /etc/ceph/ceph.client.admin.keyring"
 rbd ls volumes
@@ -600,10 +541,18 @@ rbd ls volumes
 You cannot delete or overwrite a locked image easily.
 1.  Stop the instance: `openstack server stop <INSTANCE_NAME>`
 2.  Break the lock (Advanced):
-    ```bash
-    rbd lock list ${CEPH_POOL}/${RBD_IMAGE}
-    rbd lock remove ${CEPH_POOL}/${RBD_IMAGE} <locker-id> <locker-address>
-    ```
+
+**List locks on the image**
+Identifies the locker ID and address
+```bash
+rbd lock list ${CEPH_POOL}/${RBD_IMAGE}
+```
+
+**Remove the lock manually**
+Replace `<locker-id>` and `<locker-address>` with values from the list command
+```bash
+rbd lock remove ${CEPH_POOL}/${RBD_IMAGE} <locker-id> <locker-address>
+```
 
 ### Error 3: `No such file or directory` during Export
 **Cause:** Typo in Pool name or Image name.
@@ -634,6 +583,3 @@ This guide has walked you through the manual process of backing up and restoring
 4.  Restore data and recover the OpenStack instance.
 
 While this method is powerful for understanding the infrastructure, always prioritize **Cinder Backup** or **RBD Mirroring** for production workloads to ensure data consistency, automation, and minimal downtime.
-
----
-
