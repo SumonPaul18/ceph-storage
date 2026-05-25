@@ -3,7 +3,7 @@
 ## Table of Contents
 
 1.  [Prerequisites & Environment Setup](#1-prerequisites--environment-setup)
-2.  [Phase 1: Pre-Migration Preparation](#2-phase-1- Pre-Migration-Preparation-OpenStack-Side)
+2.  [Phase 1: Pre-Migration Preparation](#2-phase-1- pre-migration-preparation-openStack-side)
 3.  **Phase 2: Data Export from Ceph Cluster**
 4.  **Phase 3: Image Transfer & Optimization**
 5.  **Phase 4: VM Creation & Disk Import in Proxmox VE**
